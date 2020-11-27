@@ -1,59 +1,55 @@
 #include "Actuator.h"
 
 Actuator::Actuator(
-  distance dMax,
-  distance posAccuracy,
+  int posPerThousandAccuracy,
   int posInputMin,
   int posInputMax,
   byte posInputPin,
-  byte isClosedInputPin,
+  byte isTotallyFoldedInputPin,
   byte cmdOutputPin
 ) {
-  _dMax = dMax;
-  _posAccuracy = posAccuracy;
+  _posPerThousandAccuracy = posPerThousandAccuracy;
   _posInputMin = posInputMin;
   _posInputMax = posInputMax;
   _posInputPin = posInputPin;
-  _isClosedInputPin = isClosedInputPin;
+  _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
   _cmdOutputPin = cmdOutputPin;
 
   pinMode(_posInputPin, INPUT);
-  pinMode(_isClosedInputPin, INPUT);
+  pinMode(_isTotallyFoldedInputPin, INPUT);
   pinMode(_cmdOutputPin, OUTPUT);
 }
 
-float Actuator::_readPosRatio() {
+int Actuator::_readPosPerThousand() {
   const int inputVal = analogRead(_posInputPin);
-  return float posRatio = (float)(inputVal - _posInputMin) / (float)(_posInputMax - _posInputMin);
+  const float posRatio = (float)(inputVal - _posInputMin) / (float)(_posInputMax - _posInputMin);
+  return (int)(posRatio * 1000);
 }
 
-distance _computeDistanceFromRatio(float ratio) {
-  return _dMin + ratio * (_dMax - _dMin);
-}
-
-distance _readPos() {
-  return _computeDistanceFromRatio(_readPosRatio());
-}
-
-void _isClosed() {
+bool Actuator::_isTotallyFolded() {
 
 }
 
-void _goLonger() {
+bool Actuator::_isTotallyUnfolded() {
+  // On n'a pas de capteur pour ce cas, qui n'est pas cense arriver. Mais on
+  // definit quand meme la methode pour la carte du code.
+  return false;
+}
+
+void Actuator::_stepLonger() {
 
 }
 
-void _goShorter() {
+void Actuator::_stepShorter() {
 
 }
 
-void Actuator::goTo(float targetRatio) {
-  distance target = _computeDistanceFromRatio(targetRatio);
-  while (true) {
-    int delta = target - _readPos();
-    if (abs(delta) < _posAccuracy || delta < 0 && _isClosed()) {
-      break;
-    }
-    (delta > 0) ? _goLonger() : _goShorter();
+void Actuator::stepTo(int targetPerThousand) {
+  int posDelta = targetPerThousand - _readPosPerThousand();
+  bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
+  bool cannotStep = (delta < 0 && _isTotallyFolded()) || (delta > 0 && _isTotallyUnfolded());
+  if (isAtPos || cannotStep) {
+    return;
   }
+  (delta > 0) ? _stepLonger() : _stepShorter();
 }

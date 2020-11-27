@@ -2,39 +2,43 @@
 #define Actuator_h
 
 #include "Arduino.h"
-#include "Types.h"
 
 class Actuator {
   public:
     Actuator(
-      distance dMax,
-      distance posAccuracy,
+      int posPerThousandAccuracy,
       int posInputMin,
       int posInputMax,
       byte posInputPin,
-      byte isClosedInputPin,
+      byte isTotallyFoldedInputPin,
       byte cmdOutputPin
     );
 
-    void goTo(float targetRatio);
+    void stepTo(int targetPerThousand);
 
   private:
     byte _posInputPin;
-    byte _isClosedInputPin; // Fin de course totalement replie
+    // Fin de course : verin totalement ferme
+    // On a un capteur a part, en plus du capteur de position, par mesure de
+    // securite.
+    // A priori, la fin de course totalement ouvert ne sera jamais atteinte,
+    // donc on ne definit pas d'entree correspondante.
+    byte _isTotallyFoldedInputPin;
     byte _cmdOutputPin;
 
-    distance _dMin = 0;
-    distance _dMax;
-    distance _posAccuracy;
-    int _posInputMin; // La valeur du potar quand le verin est totalement replie
-    int _posInputMax; // La valeur du potar quand le verin est totalement deplie
+    // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
+    int _posPerThousandAccuracy;
+    // La valeur du potar quand le verin est totalement ferme
+    int _posInputMin;
+    // La valeur du potar quand le verin est totalement ouvert
+    int _posInputMax;
 
-    float _readPosRatio();
-    distance _readPos();
-    distance _computeDistanceFromRatio();
-    void _goLonger();
-    void _goShorter();
-    void _isClosed();
+    int _readPosPerThousand();
+    int _computePosDelta();
+    void _stepLonger();
+    void _stepShorter();
+    bool _isTotallyFolded();
+    bool _isTotallyUnfolded();
 };
 
 #endif
