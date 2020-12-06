@@ -36,11 +36,15 @@ bool Actuator::_isTotallyUnfolded() {
   return false;
 }
 
-void Actuator::_stepLonger() {
+void Actuator::_startFolding() {
 
 }
 
-void Actuator::_stepShorter() {
+void Actuator::_startUnfolding() {
+
+}
+
+void Actuator::_stop() {
 
 }
 
@@ -49,7 +53,8 @@ void Actuator::stepTo(int targetPerThousand) {
   bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
   bool cannotStep = (delta < 0 && _isTotallyFolded()) || (delta > 0 && _isTotallyUnfolded());
   if (isAtPos || cannotStep) {
+    _stop();
     return;
   }
-  (delta > 0) ? _stepLonger() : _stepShorter();
+  (delta > 0) ? _startUnfolding() : _startFolding();
 }

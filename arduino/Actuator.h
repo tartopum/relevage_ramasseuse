@@ -35,8 +35,9 @@ class Actuator {
 
     int _readPosPerThousand();
     int _computePosDelta();
-    void _stepLonger();
-    void _stepShorter();
+    void _startFolding();
+    void _startUnfolding();
+    void _stop();
     bool _isTotallyFolded();
     bool _isTotallyUnfolded();
 };
