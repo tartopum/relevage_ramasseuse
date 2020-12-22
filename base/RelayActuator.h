@@ -1,5 +1,5 @@
-#ifndef Actuator_h
-#define Actuator_h
+#ifndef RelayActuator_h
+#define RelayActuator_h
 
 #include "Arduino.h"
 #include "BaseActuator.h"
@@ -11,9 +11,10 @@ class RelayActuator: public BaseActuator {
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
+      byte isTotallyFoldedInputPin,
+      byte isTotallyUnfoldedInputPin,
       unsigned long maxMovingTime,
       float movingTimeAlertCoef,
-      byte isTotallyFoldedInputPin,
       byte relaySourceFoldPin,
       byte relaySourceUnfoldPin,
       byte relayMotorPin1,
@@ -21,13 +22,6 @@ class RelayActuator: public BaseActuator {
     );
 
   protected:
-    // Fin de course : verin totalement ferme
-    // On a un capteur a part, en plus du capteur de position, par mesure de
-    // securite.
-    // A priori, la fin de course totalement ouvert ne sera jamais atteinte,
-    // donc on ne definit pas d'entree correspondante.
-    byte _isTotallyFoldedInputPin;
-
     // Les relais sources permettent de decider si c'est du (+) ou du (-) qui est
     // envoye sur chaque pin de l'electrovanne. Selon la tension que recoit chaque
     // pin de l'electrovanne, le verin se deplie ou se replie. Inverser la polarite
@@ -74,8 +68,6 @@ class RelayActuator: public BaseActuator {
     void _startFolding();
     void _startUnfolding();
     void _stop();
-    bool _isTotallyFolded();
-    bool _isTotallyUnfolded();
 };
 
 #endif

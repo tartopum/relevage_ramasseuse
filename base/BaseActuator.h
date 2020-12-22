@@ -10,6 +10,8 @@ class BaseActuator {
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
+      byte isTotallyFoldedInputPin,
+      byte isTotallyUnfoldedInputPin,
       unsigned long maxMovingTime,
       float movingTimeAlertCoef
     );
@@ -18,11 +20,20 @@ class BaseActuator {
     void stop();
     bool isFolding();
     bool isUnfolding();
+    bool isTotallyFolded();
+    bool isTotallyUnfolded();
     bool looksBlocked();
 
   protected:
     // Le pin pour lire la valeur du capteur de position du verin.
     byte _posInputPin;
+
+    // On a un capteur a part, en plus du capteur de position, par mesure de
+    // securite pour la fin de course.
+    //
+    // Si pas de capteur de fin de course, mettre a 0.
+    byte _isTotallyFoldedInputPin = 0;
+    byte _isTotallyUnfoldedInputPin = 0;
 
     // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
     int _posPerThousandAccuracy;
@@ -50,8 +61,6 @@ class BaseActuator {
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;
     virtual void _stop() = 0;
-    virtual bool _isTotallyFolded() = 0;
-    virtual bool _isTotallyUnfolded() = 0;
 };
 
 #endif

@@ -5,6 +5,8 @@ BaseActuator::BaseActuator(
   float posInputMinVolts,
   float posInputMaxVolts,
   byte posInputPin,
+  byte isTotallyFoldedInputPin,
+  byte isTotallyUnfoldedInputPin,
   unsigned long maxMovingTime,
   float movingTimeAlertCoef
 ) {
@@ -12,10 +14,16 @@ BaseActuator::BaseActuator(
   _posInputMin = posInputMinVolts / 5 * 1023;
   _posInputMax = posInputMaxVolts / 5 * 1023;
   _posInputPin = posInputPin;
+
   _maxMovingTime = maxMovingTime;
   _movingTimeAlertCoef = movingTimeAlertCoef;
 
+  _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
+  _isTotallyUnfoldedInputPin = isTotallyUnfoldedInputPin;
+
   pinMode(_posInputPin, INPUT);
+  pinMode(_isTotallyFoldedInputPin, INPUT);
+  pinMode(_isTotallyUnfoldedInputPin, INPUT);
 }
 
 int BaseActuator::_readPosPerThousand() {
@@ -30,6 +38,20 @@ bool BaseActuator::isFolding() {
 
 bool BaseActuator::isUnfolding() {
   return _moving && !_folding;
+}
+
+bool BaseActuator::isTotallyFolded() {
+  if (!_isTotallyFoldedInputPin) {
+    return false;
+  }
+  return digitalRead(_isTotallyFoldedInputPin) == HIGH;
+}
+
+bool BaseActuator::isTotallyUnfolded() {
+  if (!_isTotallyUnfoldedInputPin) {
+    return false;
+  }
+  return digitalRead(_isTotallyUnfoldedInputPin) == HIGH;
 }
 
 bool BaseActuator::looksBlocked() {
@@ -49,7 +71,7 @@ void BaseActuator::startMovingTo(int targetPerThousand) {
   // on l'arrete.
   int posDelta = targetPerThousand - _readPosPerThousand();
   bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
-  bool cannotStep = (posDelta < 0 && _isTotallyFolded()) || (posDelta > 0 && _isTotallyUnfolded());
+  bool cannotStep = (posDelta < 0 && isTotallyFolded()) || (posDelta > 0 && isTotallyUnfolded());
   if (isAtPos || cannotStep) {
     stop();
     return;

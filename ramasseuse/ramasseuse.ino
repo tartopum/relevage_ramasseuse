@@ -26,7 +26,8 @@
 #define VERIN_G_MIN_VOLTS 0
 #define VERIN_G_MAX_VOLTS 5
 #define VERIN_G_PIN_ENTREE 0
-#define VERIN_G_PIN_FIN_COURSE 0
+#define VERIN_G_PIN_FIN_COURSE_REPLIE 0
+#define VERIN_G_PIN_FIN_COURSE_DEPLIE 0
 #define VERIN_G_PIN_R1 0
 #define VERIN_G_PIN_R2 0
 #define VERIN_G_PIN_R3 0
@@ -37,7 +38,8 @@
 #define VERIN_D_MIN_VOLTS 0
 #define VERIN_D_MAX_VOLTS 5
 #define VERIN_D_PIN_ENTREE 0
-#define VERIN_D_PIN_FIN_COURSE 0
+#define VERIN_D_PIN_FIN_COURSE_REPLIE 0
+#define VERIN_D_PIN_FIN_COURSE_DEPLIE 0
 #define VERIN_D_PIN_R1 0
 #define VERIN_D_PIN_R2 0
 #define VERIN_D_PIN_R3 0
@@ -52,9 +54,10 @@ class Actuator : public RelayActuator {
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
+      byte isTotallyFoldedInputPin,
+      byte isTotallyUnfoldedInputPin,
       unsigned long maxMovingTime,
       float movingTimeAlertCoef,
-      byte isTotallyFoldedInputPin,
       byte relaySourceFoldPin,
       byte relaySourceUnfoldPin,
       byte relayMotorPin1,
@@ -64,9 +67,10 @@ class Actuator : public RelayActuator {
       posInputMinVolts,
       posInputMaxVolts,
       posInputPin,
+      isTotallyFoldedInputPin,
+      isTotallyUnfoldedInputPin,
       maxMovingTime,
       movingTimeAlertCoef,
-      isTotallyFoldedInputPin,
       relaySourceFoldPin,
       relaySourceUnfoldPin,
       relayMotorPin1,
@@ -116,9 +120,10 @@ Actuator actuatorLeft(
   VERIN_G_MIN_VOLTS,
   VERIN_G_MAX_VOLTS,
   VERIN_G_PIN_ENTREE,
+  VERIN_G_PIN_FIN_COURSE_REPLIE,
+  VERIN_G_PIN_FIN_COURSE_DEPLIE,
   VERIN_G_DUREE_MAX_DEPLACEMENT,
   VERIN_COEF_DUREE_DEPLACEMENT_ALERTE,
-  VERIN_G_PIN_FIN_COURSE,
   VERIN_G_PIN_R1,
   VERIN_G_PIN_R2,
   VERIN_G_PIN_R3,
@@ -130,9 +135,10 @@ Actuator actuatorRight(
   VERIN_D_MIN_VOLTS,
   VERIN_D_MAX_VOLTS,
   VERIN_D_PIN_ENTREE,
+  VERIN_D_PIN_FIN_COURSE_REPLIE,
+  VERIN_D_PIN_FIN_COURSE_DEPLIE,
   VERIN_D_DUREE_MAX_DEPLACEMENT,
   VERIN_COEF_DUREE_DEPLACEMENT_ALERTE,
-  VERIN_D_PIN_FIN_COURSE,
   VERIN_D_PIN_R1,
   VERIN_D_PIN_R2,
   VERIN_D_PIN_R3,
