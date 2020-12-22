@@ -11,6 +11,7 @@ class RelayActuator: public BaseActuator {
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
+      unsigned long maxMovingTime,
       byte isTotallyFoldedInputPin,
       byte relaySourceFoldPin,
       byte relaySourceUnfoldPin,

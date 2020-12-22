@@ -26,6 +26,7 @@
 #define VERIN_G_PIN_R2 0
 #define VERIN_G_PIN_R3 0
 #define VERIN_G_PIN_R4 0
+#define VERIN_G_DUREE_MAX_DEPLACEMENT 0
 
 // Verin droit
 #define VERIN_D_MIN_VOLTS 0
@@ -36,6 +37,7 @@
 #define VERIN_D_PIN_R2 0
 #define VERIN_D_PIN_R3 0
 #define VERIN_D_PIN_R4 0
+#define VERIN_D_DUREE_MAX_DEPLACEMENT 0
 
 
 class Actuator : public RelayActuator {
@@ -45,6 +47,7 @@ class Actuator : public RelayActuator {
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
+      unsigned long maxMovingTime,
       byte isTotallyFoldedInputPin,
       byte relaySourceFoldPin,
       byte relaySourceUnfoldPin,
@@ -55,6 +58,7 @@ class Actuator : public RelayActuator {
       posInputMinVolts,
       posInputMaxVolts,
       posInputPin,
+      maxMovingTime,
       isTotallyFoldedInputPin,
       relaySourceFoldPin,
       relaySourceUnfoldPin,
@@ -105,6 +109,7 @@ Actuator actuatorLeft(
   VERIN_G_MIN_VOLTS,
   VERIN_G_MAX_VOLTS,
   VERIN_G_PIN_ENTREE,
+  VERIN_G_DUREE_MAX_DEPLACEMENT,
   VERIN_G_PIN_FIN_COURSE,
   VERIN_G_PIN_R1,
   VERIN_G_PIN_R2,
@@ -117,6 +122,7 @@ Actuator actuatorRight(
   VERIN_D_MIN_VOLTS,
   VERIN_D_MAX_VOLTS,
   VERIN_D_PIN_ENTREE,
+  VERIN_D_DUREE_MAX_DEPLACEMENT,
   VERIN_D_PIN_FIN_COURSE,
   VERIN_D_PIN_R1,
   VERIN_D_PIN_R2,

@@ -4,12 +4,14 @@ BaseActuator::BaseActuator(
   int posPerThousandAccuracy,
   float posInputMinVolts,
   float posInputMaxVolts,
-  byte posInputPin
+  byte posInputPin,
+  unsigned long maxMovingTime
 ) {
     _posPerThousandAccuracy = posPerThousandAccuracy;
   _posInputMin = posInputMinVolts / 5 * 1023;
   _posInputMax = posInputMaxVolts / 5 * 1023;
   _posInputPin = posInputPin;
+  _maxMovingTime = maxMovingTime;
 
   pinMode(_posInputPin, INPUT);
 }
@@ -28,7 +30,21 @@ bool BaseActuator::isUnfolding() {
   return _moving && !_folding;
 }
 
+bool BaseActuator::looksBlocked() {
+  if (!_moving) {
+    return false;
+  }
+  if (!_lastTargetChangeTime) {
+    // On n'a pas encore defini la date de debut de deplacement, il n'y en a pas
+    // encore eu.
+    return false;
+  }
+  return (millis() - _lastTargetChangeTime) > _maxMovingTime;
+}
+
 void BaseActuator::startMovingTo(int targetPerThousand) {
+  // Avant tout, on verifie si le verin est a la position cible. Le cas echeant,
+  // on l'arrete.
   int posDelta = targetPerThousand - _readPosPerThousand();
   bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
   bool cannotStep = (posDelta < 0 && _isTotallyFolded()) || (posDelta > 0 && _isTotallyUnfolded());
@@ -36,6 +52,21 @@ void BaseActuator::startMovingTo(int targetPerThousand) {
     stop();
     return;
   }
+
+  // Sinon, on ne commande le verin que si la position cible a change.
+  // Cela evite d'envoyer des signaux a repetition a l'electrovanne.
+  int deltaWithLastTarget = abs(targetPerThousand - _lastTargetPerThousand);
+  if (_lastTargetPerThousand != -1 && deltaWithLastTarget < _posPerThousandAccuracy) {
+    return;
+  }
+
+  // Si la position cible a change, on enregistre l'heure courante pour verifier
+  // que le verin n'est pas bloque (s'il met trop de temps a atteindre la cible).
+  //
+  // Comme on a verifie au prealable que la position cible avait bien change,
+  // on ne met bien a jour ces variables qu'au debut d'un deplacement.
+  _lastTargetChangeTime = millis();
+  _lastTargetPerThousand = targetPerThousand;
 
   _moving = true;
   if (posDelta > 0) {

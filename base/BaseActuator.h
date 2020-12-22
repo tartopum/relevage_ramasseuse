@@ -9,13 +9,15 @@ class BaseActuator {
       int posPerThousandAccuracy,
       float posInputMinVolts,
       float posInputMaxVolts,
-      byte posInputPin
+      byte posInputPin,
+      unsigned long maxMovingTime
     );
 
     void startMovingTo(int targetPerThousand);
     void stop();
     bool isFolding();
     bool isUnfolding();
+    bool looksBlocked();
 
   protected:
     // Le pin pour lire la valeur du capteur de position du verin.
@@ -30,6 +32,15 @@ class BaseActuator {
 
     bool _moving = false;
     bool _folding = false;
+
+    // Pour detecter un blocage du verin, on s'assure qu'il n'est pas en
+    // deplacement depuis plus de _maxMovingTime millisecondes depuis la derniere
+    // fois qu'on a defini une position cible (si on change cette derniere
+    // toutes les 2 secondes, il est normal que le verin soit en permanence
+    // en mouvement).
+    int _lastTargetPerThousand = -1;
+    unsigned long _lastTargetChangeTime = 0;
+    unsigned long _maxMovingTime;
 
     int _readPosPerThousand();
     int _computePosDelta();

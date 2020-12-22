@@ -5,12 +5,13 @@ RelayActuator::RelayActuator(
   float posInputMinVolts,
   float posInputMaxVolts,
   byte posInputPin,
+  unsigned long maxMovingTime,
   byte isTotallyFoldedInputPin,
   byte relaySourceFoldPin,
   byte relaySourceUnfoldPin,
   byte relayMotorPin1,
   byte relayMotorPin2
-) : BaseActuator(posPerThousandAccuracy, posInputMinVolts, posInputMaxVolts, posInputPin)
+) : BaseActuator(posPerThousandAccuracy, posInputMinVolts, posInputMaxVolts, posInputPin, maxMovingTime)
 {
   _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
   _relaySourceFoldPin = relaySourceFoldPin;
