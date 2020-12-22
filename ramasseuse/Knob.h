@@ -2,9 +2,9 @@
 #define Knob_h
 
 #include "Arduino.h"
-#include "Types.h"
+#include "base/TargetPosReader.h"
 
-class Knob {
+class Knob: public TargetPosReader {
   public:
     Knob(
       int minInputVal,
@@ -12,9 +12,6 @@ class Knob {
       byte pin
     );
 
-    // Le potar de cabine ne retourne que des positions sous forme de ratio.
-    // Comme ca, la conversion ratio -> distance ne se fait qu'au niveau
-    // de la classe Actuator().
     float readTargetPosRatio();
 
   private:
