@@ -68,14 +68,14 @@ class Actuator : public RelayActuator {
      * relaySourceUnfold est par defaut connecte au (-)
      */
 
-    void _setFoldSourceRelays() {
+    void _setSourceRelaysForFolding() {
       // On place les relais dans leurs positions par defaut pour envoyer du
       // (+) avec relaySourceFold et du (-) avec relaySourceUnfold.
       digitalWrite(_relaySourceFoldPin, LOW);
       digitalWrite(_relaySourceUnfoldPin, LOW);
     };
 
-    void _setUnfoldSourceRelays() {
+    void _setSourceRelaysForUnfolding() {
       // On active les relais pour envoyer du (-) avec relaySourceFold et du
       // (+) avec relaySourceUnfold.
       digitalWrite(_relaySourceFoldPin, HIGH);

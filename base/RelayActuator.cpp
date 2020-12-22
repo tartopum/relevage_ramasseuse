@@ -36,12 +36,12 @@ bool RelayActuator::_isTotallyUnfolded() {
 }
 
 void RelayActuator::_startFolding() {
-  _setFoldSourceRelays();
+  _setSourceRelaysForFolding();
   _connectMotorRelays();
 }
 
 void RelayActuator::_startUnfolding() {
-  _setUnfoldSourceRelays();
+  _setSourceRelaysForUnfolding();
   _connectMotorRelays();
 }
 
