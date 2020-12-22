@@ -1,6 +1,6 @@
-#include "RelayActuator.h"
+#include "BasePinRelayActuator.h"
 
-RelayActuator::RelayActuator(
+BasePinRelayActuator::BasePinRelayActuator(
   int posPerThousandAccuracy,
   float posInputMinVolts,
   float posInputMaxVolts,
@@ -29,23 +29,22 @@ RelayActuator::RelayActuator(
   _relayMotorPin1 = relayMotorPin1;
   _relayMotorPin2 = relayMotorPin2;
 
-  pinMode(_isTotallyFoldedInputPin, INPUT);
   pinMode(_relaySourceFoldPin, OUTPUT);
   pinMode(_relaySourceUnfoldPin, OUTPUT);
   pinMode(_relayMotorPin1, OUTPUT);
   pinMode(_relayMotorPin2, OUTPUT);
 }
 
-void RelayActuator::_startFolding() {
+void BasePinRelayActuator::_startFolding() {
   _setSourceRelaysForFolding();
   _connectMotorRelays();
 }
 
-void RelayActuator::_startUnfolding() {
+void BasePinRelayActuator::_startUnfolding() {
   _setSourceRelaysForUnfolding();
   _connectMotorRelays();
 }
 
-void RelayActuator::_stop() {
+void BasePinRelayActuator::_stop() {
   _disconnectMotorRelays();
 }

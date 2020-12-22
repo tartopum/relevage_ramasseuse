@@ -1,12 +1,12 @@
-#ifndef RelayActuator_h
-#define RelayActuator_h
+#ifndef BasePinRelayActuator_h
+#define BasePinRelayActuator_h
 
 #include "Arduino.h"
 #include "BaseActuator.h"
 
-class RelayActuator: public BaseActuator {
+class BasePinRelayActuator: public BaseActuator {
   public:
-    RelayActuator(
+    BasePinRelayActuator(
       int posPerThousandAccuracy,
       float posInputMinVolts,
       float posInputMaxVolts,

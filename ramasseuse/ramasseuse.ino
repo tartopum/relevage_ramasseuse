@@ -1,4 +1,4 @@
-#include "src/RelayActuator.h"
+#include "src/BasePinRelayActuator.h"
 #include "src/Knob.h"
 
 /*
@@ -47,7 +47,7 @@
 #define VERIN_D_DUREE_MAX_DEPLACEMENT 0
 
 
-class Actuator : public RelayActuator {
+class Actuator : public BasePinRelayActuator {
   public:
     Actuator(
       int posPerThousandAccuracy,
@@ -62,7 +62,7 @@ class Actuator : public RelayActuator {
       byte relaySourceUnfoldPin,
       byte relayMotorPin1,
       byte relayMotorPin2
-    ) : RelayActuator(
+    ) : BasePinRelayActuator (
       posPerThousandAccuracy,
       posInputMinVolts,
       posInputMaxVolts,
