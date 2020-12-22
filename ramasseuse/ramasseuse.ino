@@ -1,17 +1,72 @@
 #include "Actuator.h"
 #include "Knob.h"
 
+/*
+ * Variables
+ */
+
+// Potar
+#define POTAR_MIN_VOLTS 0
+#define POTAR_MAX_VOLTS 5
+#define POTAR_PIN_ENTREE 0
+
+// Precision
 // Pour eviter les micro-deplacements permanents dus a des micro-variations des
 // capteurs, ce qui abimerait les verins, on definit une marge d'erreur acceptable.
-const int ACTUATOR_POS_PERTHOUSAND_ACCURACY = 50;
+// On definit cette valeur en pour mille pour avoir des nombres entiers.
+// 5,5% = 55 pour mille
+#define PRECISION_POSITION_POUR_MILLE 50
+
+// Verin gauche
+#define VERIN_G_MIN_VOLTS 0
+#define VERIN_G_MAX_VOLTS 5
+#define VERIN_G_PIN_ENTREE 0
+#define VERIN_G_PIN_FIN_COURSE 0
+#define VERIN_G_PIN_R1 0
+#define VERIN_G_PIN_R2 0
+#define VERIN_G_PIN_R3 0
+#define VERIN_G_PIN_R4 0
+
+// Verin droit
+#define VERIN_D_MIN_VOLTS 0
+#define VERIN_D_MAX_VOLTS 5
+#define VERIN_D_PIN_ENTREE 0
+#define VERIN_D_PIN_FIN_COURSE 0
+#define VERIN_D_PIN_R1 0
+#define VERIN_D_PIN_R2 0
+#define VERIN_D_PIN_R3 0
+#define VERIN_D_PIN_R4 0
+
 
 Actuator actuatorLeft(
+  PRECISION_POSITION_POUR_MILLE,
+  VERIN_G_MIN_VOLTS,
+  VERIN_G_MAX_VOLTS,
+  VERIN_G_PIN_ENTREE,
+  VERIN_G_PIN_FIN_COURSE,
+  VERIN_G_PIN_R1,
+  VERIN_G_PIN_R2,
+  VERIN_G_PIN_R3,
+  VERIN_G_PIN_R4
 );
 
 Actuator actuatorRight(
+  PRECISION_POSITION_POUR_MILLE,
+  VERIN_D_MIN_VOLTS,
+  VERIN_D_MAX_VOLTS,
+  VERIN_D_PIN_ENTREE,
+  VERIN_D_PIN_FIN_COURSE,
+  VERIN_D_PIN_R1,
+  VERIN_D_PIN_R2,
+  VERIN_D_PIN_R3,
+  VERIN_D_PIN_R4
 );
 
-Knob targetPosKnob();
+Knob targetPosKnob(
+  POTAR_MIN_VOLTS,
+  POTAR_MAX_VOLTS,
+  POTAR_PIN_ENTREE
+);
 
 void setup() {
 }

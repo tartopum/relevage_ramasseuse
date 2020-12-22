@@ -7,8 +7,8 @@ class BaseActuator {
   public:
     BaseActuator(
       int posPerThousandAccuracy,
-      int posInputMin,
-      int posInputMax,
+      float posInputMinVolts,
+      float posInputMaxVolts,
       byte posInputPin
     );
 

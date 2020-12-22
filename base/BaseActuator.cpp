@@ -2,13 +2,13 @@
 
 BaseActuator::BaseActuator(
   int posPerThousandAccuracy,
-  int posInputMin,
-  int posInputMax,
+  float posInputMinVolts,
+  float posInputMaxVolts,
   byte posInputPin
 ) {
     _posPerThousandAccuracy = posPerThousandAccuracy;
-  _posInputMin = posInputMin;
-  _posInputMax = posInputMax;
+  _posInputMin = posInputMinVolts / 5 * 1023;
+  _posInputMax = posInputMaxVolts / 5 * 1023;
   _posInputPin = posInputPin;
 
   pinMode(_posInputPin, INPUT);

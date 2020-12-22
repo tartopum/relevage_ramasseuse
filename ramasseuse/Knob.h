@@ -2,13 +2,13 @@
 #define Knob_h
 
 #include "Arduino.h"
-#include "base/TargetPosReader.h"
+#include "src/TargetPosReader.h"
 
 class Knob: public TargetPosReader {
   public:
     Knob(
-      int minInputVal,
-      int maxInputVal,
+      float minInputVolts,
+      float maxInputVolts,
       byte pin
     );
 

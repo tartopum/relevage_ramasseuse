@@ -2,17 +2,20 @@
 #define Actuator_h
 
 #include "Arduino.h"
-#include "base/BaseActuator.h"
+#include "src/BaseActuator.h"
 
 class Actuator: public BaseActuator {
   public:
     Actuator(
       int posPerThousandAccuracy,
-      int posInputMin,
-      int posInputMax,
+      float posInputMinVolts,
+      float posInputMaxVolts,
       byte posInputPin,
       byte isTotallyFoldedInputPin,
-      byte cmdOutputPin
+      byte r1Pin,
+      byte r2Pin,
+      byte r3Pin,
+      byte r4Pin
     );
 
   protected:
@@ -22,14 +25,10 @@ class Actuator: public BaseActuator {
     // A priori, la fin de course totalement ouvert ne sera jamais atteinte,
     // donc on ne definit pas d'entree correspondante.
     byte _isTotallyFoldedInputPin;
-    byte _cmdOutputPin;
-
-    // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
-    int _posPerThousandAccuracy;
-    // La valeur du potar quand le verin est totalement ferme
-    int _posInputMin;
-    // La valeur du potar quand le verin est totalement ouvert
-    int _posInputMax;
+    byte _r1Pin;
+    byte _r2Pin;
+    byte _r3Pin;
+    byte _r4Pin;
 
     void _stop();
     void _startFolding();

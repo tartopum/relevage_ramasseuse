@@ -2,22 +2,31 @@
 
 Actuator::Actuator(
   int posPerThousandAccuracy,
-  int posInputMin,
-  int posInputMax,
+  float posInputMinVolts,
+  float posInputMaxVolts,
   byte posInputPin,
   byte isTotallyFoldedInputPin,
-  byte cmdOutputPin
-) : BaseActuator(posPerThousandAccuracy, posInputMin, posInputMax, posInputPin)
+  byte r1Pin,
+  byte r2Pin,
+  byte r3Pin,
+  byte r4Pin
+) : BaseActuator(posPerThousandAccuracy, posInputMinVolts, posInputMaxVolts, posInputPin)
 {
   _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
-  _cmdOutputPin = cmdOutputPin;
+  _r1Pin = r1Pin;
+  _r2Pin = r2Pin;
+  _r3Pin = r3Pin;
+  _r4Pin = r4Pin;
 
   pinMode(_isTotallyFoldedInputPin, INPUT);
-  pinMode(_cmdOutputPin, OUTPUT);
+  pinMode(_r1Pin, OUTPUT);
+  pinMode(_r2Pin, OUTPUT);
+  pinMode(_r3Pin, OUTPUT);
+  pinMode(_r4Pin, OUTPUT);
 }
 
 bool Actuator::_isTotallyFolded() {
-  return false; // TODO
+  return digitalRead(_isTotallyFoldedInputPin) == HIGH;
 }
 
 bool Actuator::_isTotallyUnfolded() {
