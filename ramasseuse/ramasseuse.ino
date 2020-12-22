@@ -185,6 +185,6 @@ void loop() {
   corresponde a deux positions absolues identiques.
   */
   float targetPosRatio = targetPosKnob.readTargetPosRatio();
-  actuatorLeft.stepTo(targetPosRatio);
-  actuatorRight.stepTo(targetPosRatio);
+  actuatorLeft.startMovingTo(targetPosRatio);
+  actuatorRight.startMovingTo(targetPosRatio);
 }

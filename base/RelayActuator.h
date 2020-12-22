@@ -18,8 +18,6 @@ class RelayActuator: public BaseActuator {
       byte relayMotorPin2
     );
 
-    void stop();
-
   protected:
     // Fin de course : verin totalement ferme
     // On a un capteur a part, en plus du capteur de position, par mesure de
@@ -73,6 +71,7 @@ class RelayActuator: public BaseActuator {
 
     void _startFolding();
     void _startUnfolding();
+    void _stop();
     bool _isTotallyFolded();
     bool _isTotallyUnfolded();
 };

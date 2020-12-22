@@ -20,7 +20,15 @@ int BaseActuator::_readPosPerThousand() {
   return (int)(posRatio * 1000);
 }
 
-void BaseActuator::stepTo(int targetPerThousand) {
+bool BaseActuator::isFolding() {
+  return _moving && _folding;
+}
+
+bool BaseActuator::isUnfolding() {
+  return _moving && !_folding;
+}
+
+void BaseActuator::startMovingTo(int targetPerThousand) {
   int posDelta = targetPerThousand - _readPosPerThousand();
   bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
   bool cannotStep = (posDelta < 0 && _isTotallyFolded()) || (posDelta > 0 && _isTotallyUnfolded());
@@ -28,5 +36,18 @@ void BaseActuator::stepTo(int targetPerThousand) {
     stop();
     return;
   }
-  (posDelta > 0) ? _startUnfolding() : _startFolding();
+
+  _moving = true;
+  if (posDelta > 0) {
+    _startUnfolding();
+    _folding = false;
+  } else {
+    _startFolding();
+    _folding = true;
+  }  
+}
+
+void BaseActuator::stop() {
+  _moving = false;
+  _stop();
 }

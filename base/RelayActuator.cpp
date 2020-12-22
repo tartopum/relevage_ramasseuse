@@ -45,6 +45,6 @@ void RelayActuator::_startUnfolding() {
   _connectMotorRelays();
 }
 
-void RelayActuator::stop() {
+void RelayActuator::_stop() {
   _disconnectMotorRelays();
 }
