@@ -10,7 +10,8 @@ class BaseActuator {
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
-      unsigned long maxMovingTime
+      unsigned long maxMovingTime,
+      float movingTimeAlertCoef
     );
 
     void startMovingTo(int targetPerThousand);
@@ -34,13 +35,15 @@ class BaseActuator {
     bool _folding = false;
 
     // Pour detecter un blocage du verin, on s'assure qu'il n'est pas en
-    // deplacement depuis plus de _maxMovingTime millisecondes depuis la derniere
-    // fois qu'on a defini une position cible (si on change cette derniere
+    // deplacement depuis plus d'un certain temps depuis la derniere
+    // fois qu'on a change de position cible (si on change cette derniere
     // toutes les 2 secondes, il est normal que le verin soit en permanence
     // en mouvement).
     int _lastTargetPerThousand = -1;
     unsigned long _lastTargetChangeTime = 0;
     unsigned long _maxMovingTime;
+    unsigned long _expectedMovingTime = 0;
+    float _movingTimeAlertCoef;
 
     int _readPosPerThousand();
     int _computePosDelta();
@@ -49,6 +52,7 @@ class BaseActuator {
     virtual void _stop() = 0;
     virtual bool _isTotallyFolded() = 0;
     virtual bool _isTotallyUnfolded() = 0;
+    // virtual void _raiseAlert() = 0;
 };
 
 #endif

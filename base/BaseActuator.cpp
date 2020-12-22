@@ -5,13 +5,15 @@ BaseActuator::BaseActuator(
   float posInputMinVolts,
   float posInputMaxVolts,
   byte posInputPin,
-  unsigned long maxMovingTime
+  unsigned long maxMovingTime,
+  float movingTimeAlertCoef
 ) {
     _posPerThousandAccuracy = posPerThousandAccuracy;
   _posInputMin = posInputMinVolts / 5 * 1023;
   _posInputMax = posInputMaxVolts / 5 * 1023;
   _posInputPin = posInputPin;
   _maxMovingTime = maxMovingTime;
+  _movingTimeAlertCoef = movingTimeAlertCoef;
 
   pinMode(_posInputPin, INPUT);
 }
@@ -34,12 +36,12 @@ bool BaseActuator::looksBlocked() {
   if (!_moving) {
     return false;
   }
-  if (!_lastTargetChangeTime) {
+  if (!_expectedMovingTime) {
     // On n'a pas encore defini la date de debut de deplacement, il n'y en a pas
     // encore eu.
     return false;
   }
-  return (millis() - _lastTargetChangeTime) > _maxMovingTime;
+  return (millis() - _lastTargetChangeTime) > (_movingTimeAlertCoef * _expectedMovingTime);
 }
 
 void BaseActuator::startMovingTo(int targetPerThousand) {
@@ -67,6 +69,7 @@ void BaseActuator::startMovingTo(int targetPerThousand) {
   // on ne met bien a jour ces variables qu'au debut d'un deplacement.
   _lastTargetChangeTime = millis();
   _lastTargetPerThousand = targetPerThousand;
+  _expectedMovingTime = (float)(deltaWithLastTarget) / 1000 * _maxMovingTime;
 
   _moving = true;
   if (posDelta > 0) {

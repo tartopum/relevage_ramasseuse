@@ -17,6 +17,11 @@
 // 5,5% = 55 pour mille
 #define PRECISION_POSITION_POUR_MILLE 50
 
+// Alerte
+// Si le verin met plus que x fois la duree de deplacement prevue, on lance une
+// alerte.
+#define VERIN_COEF_DUREE_DEPLACEMENT_ALERTE 2
+
 // Verin gauche
 #define VERIN_G_MIN_VOLTS 0
 #define VERIN_G_MAX_VOLTS 5
@@ -48,6 +53,7 @@ class Actuator : public RelayActuator {
       float posInputMaxVolts,
       byte posInputPin,
       unsigned long maxMovingTime,
+      float movingTimeAlertCoef,
       byte isTotallyFoldedInputPin,
       byte relaySourceFoldPin,
       byte relaySourceUnfoldPin,
@@ -59,6 +65,7 @@ class Actuator : public RelayActuator {
       posInputMaxVolts,
       posInputPin,
       maxMovingTime,
+      movingTimeAlertCoef,
       isTotallyFoldedInputPin,
       relaySourceFoldPin,
       relaySourceUnfoldPin,
@@ -110,6 +117,7 @@ Actuator actuatorLeft(
   VERIN_G_MAX_VOLTS,
   VERIN_G_PIN_ENTREE,
   VERIN_G_DUREE_MAX_DEPLACEMENT,
+  VERIN_COEF_DUREE_DEPLACEMENT_ALERTE,
   VERIN_G_PIN_FIN_COURSE,
   VERIN_G_PIN_R1,
   VERIN_G_PIN_R2,
@@ -123,6 +131,7 @@ Actuator actuatorRight(
   VERIN_D_MAX_VOLTS,
   VERIN_D_PIN_ENTREE,
   VERIN_D_DUREE_MAX_DEPLACEMENT,
+  VERIN_COEF_DUREE_DEPLACEMENT_ALERTE,
   VERIN_D_PIN_FIN_COURSE,
   VERIN_D_PIN_R1,
   VERIN_D_PIN_R2,
