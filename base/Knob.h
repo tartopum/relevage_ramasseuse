@@ -2,7 +2,7 @@
 #define Knob_h
 
 #include "Arduino.h"
-#include "src/TargetPosReader.h"
+#include "TargetPosReader.h"
 
 class Knob: public TargetPosReader {
   public:

@@ -1,5 +1,5 @@
 #include "src/RelayActuator.h"
-#include "Knob.h"
+#include "src/Knob.h"
 
 /*
  * Variables
