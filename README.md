@@ -42,3 +42,7 @@ Pour faciliter la configuration de ces objets, il est conseillé de définir les
 variables en haut du `.ino` avec des `#define`.
 
 Un exemple de projet est dans le dossier `ramasseuse/`.
+
+Sauf si les composants (capteur et vérin) sont très spécifiques, il est conseillé
+de définir leurs classes dans le dossier `base/` afin qu'ils soient facilement
+réutilisables.
