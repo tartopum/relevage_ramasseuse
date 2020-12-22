@@ -1,4 +1,4 @@
-#include "src/BasePinRelayActuator.h"
+#include "src/I2CRelayActuator.h"
 #include "src/Knob.h"
 
 /*
@@ -28,11 +28,11 @@
 #define VERIN_G_PIN_ENTREE 0
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_G_PIN_FIN_COURSE_DEPLIE 0
-#define VERIN_G_PIN_R1 0
-#define VERIN_G_PIN_R2 0
-#define VERIN_G_PIN_R3 0
-#define VERIN_G_PIN_R4 0
+#define VERIN_G_RELAIS_ADR_I2C 0
 #define VERIN_G_DUREE_MAX_DEPLACEMENT 0
+bool VERIN_G_ETATS_RELAIS_STOP[4] = {0, 0, 0, 0};
+bool VERIN_G_ETATS_RELAIS_REPLIER[4] = {0, 0, 1, 1};
+bool VERIN_G_ETATS_RELAIS_DEPLIER[4] = {1, 1, 1, 1};
 
 // Verin droit
 #define VERIN_D_MIN_VOLTS 0
@@ -40,82 +40,14 @@
 #define VERIN_D_PIN_ENTREE 0
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_D_PIN_FIN_COURSE_DEPLIE 0
-#define VERIN_D_PIN_R1 0
-#define VERIN_D_PIN_R2 0
-#define VERIN_D_PIN_R3 0
-#define VERIN_D_PIN_R4 0
+#define VERIN_D_RELAIS_ADR_I2C 0
 #define VERIN_D_DUREE_MAX_DEPLACEMENT 0
+bool VERIN_D_ETATS_RELAIS_STOP[4] = {0, 0, 0, 0};
+bool VERIN_D_ETATS_RELAIS_REPLIER[4] = {0, 0, 1, 1};
+bool VERIN_D_ETATS_RELAIS_DEPLIER[4] = {1, 1, 1, 1};
 
 
-class Actuator : public BasePinRelayActuator {
-  public:
-    Actuator(
-      int posPerThousandAccuracy,
-      float posInputMinVolts,
-      float posInputMaxVolts,
-      byte posInputPin,
-      byte isTotallyFoldedInputPin,
-      byte isTotallyUnfoldedInputPin,
-      unsigned long maxMovingTime,
-      float movingTimeAlertCoef,
-      byte relaySourceFoldPin,
-      byte relaySourceUnfoldPin,
-      byte relayMotorPin1,
-      byte relayMotorPin2
-    ) : BasePinRelayActuator (
-      posPerThousandAccuracy,
-      posInputMinVolts,
-      posInputMaxVolts,
-      posInputPin,
-      isTotallyFoldedInputPin,
-      isTotallyUnfoldedInputPin,
-      maxMovingTime,
-      movingTimeAlertCoef,
-      relaySourceFoldPin,
-      relaySourceUnfoldPin,
-      relayMotorPin1,
-      relayMotorPin2
-    ) {};
-
-  protected:
-    /*
-     * relaySourceFold est par defaut connecte au (+)
-     * relaySourceUnfold est par defaut connecte au (-)
-     */
-
-    void _setSourceRelaysForFolding() {
-      // On place les relais dans leurs positions par defaut pour envoyer du
-      // (+) avec relaySourceFold et du (-) avec relaySourceUnfold.
-      digitalWrite(_relaySourceFoldPin, LOW);
-      digitalWrite(_relaySourceUnfoldPin, LOW);
-    };
-
-    void _setSourceRelaysForUnfolding() {
-      // On active les relais pour envoyer du (-) avec relaySourceFold et du
-      // (+) avec relaySourceUnfold.
-      digitalWrite(_relaySourceFoldPin, HIGH);
-      digitalWrite(_relaySourceUnfoldPin, HIGH);
-    };
-
-    /*
-     * relayMotorPin1 est par defaut ouvert, le courant ne passe pas
-     * relayMotorPin2 est par defaut ouvert, le courant ne passe pas
-     */
-
-    void _connectMotorRelays() {
-      // On actionne les relais pour les fermer et connecter l'electrovanne au courant.
-      digitalWrite(_relayMotorPin1, HIGH);
-      digitalWrite(_relayMotorPin2, HIGH);
-    };
-
-    void _disconnectMotorRelays() {
-      // On desactive les relais pour les ouvrir et couper le courant de l'electrovanne.
-      digitalWrite(_relayMotorPin1, LOW);
-      digitalWrite(_relayMotorPin2, LOW);
-    };
-};
-
-Actuator actuatorLeft(
+I2CRelayActuator actuatorLeft(
   PRECISION_POSITION_POUR_MILLE,
   VERIN_G_MIN_VOLTS,
   VERIN_G_MAX_VOLTS,
@@ -124,13 +56,13 @@ Actuator actuatorLeft(
   VERIN_G_PIN_FIN_COURSE_DEPLIE,
   VERIN_G_DUREE_MAX_DEPLACEMENT,
   VERIN_COEF_DUREE_DEPLACEMENT_ALERTE,
-  VERIN_G_PIN_R1,
-  VERIN_G_PIN_R2,
-  VERIN_G_PIN_R3,
-  VERIN_G_PIN_R4
+  VERIN_G_RELAIS_ADR_I2C,
+  VERIN_G_ETATS_RELAIS_STOP,
+  VERIN_G_ETATS_RELAIS_REPLIER,
+  VERIN_G_ETATS_RELAIS_DEPLIER
 );
 
-Actuator actuatorRight(
+I2CRelayActuator actuatorRight(
   PRECISION_POSITION_POUR_MILLE,
   VERIN_D_MIN_VOLTS,
   VERIN_D_MAX_VOLTS,
@@ -139,10 +71,10 @@ Actuator actuatorRight(
   VERIN_D_PIN_FIN_COURSE_DEPLIE,
   VERIN_D_DUREE_MAX_DEPLACEMENT,
   VERIN_COEF_DUREE_DEPLACEMENT_ALERTE,
-  VERIN_D_PIN_R1,
-  VERIN_D_PIN_R2,
-  VERIN_D_PIN_R3,
-  VERIN_D_PIN_R4
+  VERIN_D_RELAIS_ADR_I2C,
+  VERIN_D_ETATS_RELAIS_STOP,
+  VERIN_D_ETATS_RELAIS_REPLIER,
+  VERIN_D_ETATS_RELAIS_DEPLIER
 );
 
 Knob targetPosKnob(
@@ -154,7 +86,7 @@ Knob targetPosKnob(
 bool isModeAuto = true;
 
 void raiseAlert() {
-
+  // TODO
 }
 
 void setup() {
