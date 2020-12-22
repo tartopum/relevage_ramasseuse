@@ -2,8 +2,9 @@
 #define Actuator_h
 
 #include "Arduino.h"
+#include "base/BaseActuator.h"
 
-class Actuator {
+class Actuator: public BaseActuator {
   public:
     Actuator(
       int posPerThousandAccuracy,
@@ -14,10 +15,7 @@ class Actuator {
       byte cmdOutputPin
     );
 
-    void stepTo(int targetPerThousand);
-
-  private:
-    byte _posInputPin;
+  protected:
     // Fin de course : verin totalement ferme
     // On a un capteur a part, en plus du capteur de position, par mesure de
     // securite.
@@ -33,11 +31,9 @@ class Actuator {
     // La valeur du potar quand le verin est totalement ouvert
     int _posInputMax;
 
-    int _readPosPerThousand();
-    int _computePosDelta();
+    void _stop();
     void _startFolding();
     void _startUnfolding();
-    void _stop();
     bool _isTotallyFolded();
     bool _isTotallyUnfolded();
 };

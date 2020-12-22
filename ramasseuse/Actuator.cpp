@@ -7,27 +7,17 @@ Actuator::Actuator(
   byte posInputPin,
   byte isTotallyFoldedInputPin,
   byte cmdOutputPin
-) {
-  _posPerThousandAccuracy = posPerThousandAccuracy;
-  _posInputMin = posInputMin;
-  _posInputMax = posInputMax;
-  _posInputPin = posInputPin;
+) : BaseActuator(posPerThousandAccuracy, posInputMin, posInputMax, posInputPin)
+{
   _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
   _cmdOutputPin = cmdOutputPin;
 
-  pinMode(_posInputPin, INPUT);
   pinMode(_isTotallyFoldedInputPin, INPUT);
   pinMode(_cmdOutputPin, OUTPUT);
 }
 
-int Actuator::_readPosPerThousand() {
-  const int inputVal = analogRead(_posInputPin);
-  const float posRatio = (float)(inputVal - _posInputMin) / (float)(_posInputMax - _posInputMin);
-  return (int)(posRatio * 1000);
-}
-
 bool Actuator::_isTotallyFolded() {
-
+  return false; // TODO
 }
 
 bool Actuator::_isTotallyUnfolded() {
@@ -46,15 +36,4 @@ void Actuator::_startUnfolding() {
 
 void Actuator::_stop() {
 
-}
-
-void Actuator::stepTo(int targetPerThousand) {
-  int posDelta = targetPerThousand - _readPosPerThousand();
-  bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
-  bool cannotStep = (delta < 0 && _isTotallyFolded()) || (delta > 0 && _isTotallyUnfolded());
-  if (isAtPos || cannotStep) {
-    _stop();
-    return;
-  }
-  (delta > 0) ? _startUnfolding() : _startFolding();
 }
