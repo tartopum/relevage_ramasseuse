@@ -13,6 +13,7 @@ class BaseActuator {
     );
 
     void stepTo(int targetPerThousand);
+    virtual void stop() = 0;
 
   protected:
     byte _posInputPin;
@@ -26,7 +27,6 @@ class BaseActuator {
 
     int _readPosPerThousand();
     int _computePosDelta();
-    virtual void _stop() = 0;
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;
     virtual bool _isTotallyFolded() = 0;

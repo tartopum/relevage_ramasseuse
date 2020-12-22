@@ -6,23 +6,23 @@ RelayActuator::RelayActuator(
   float posInputMaxVolts,
   byte posInputPin,
   byte isTotallyFoldedInputPin,
-  byte r1Pin,
-  byte r2Pin,
-  byte r3Pin,
-  byte r4Pin
+  byte relaySourceFoldPin,
+  byte relaySourceUnfoldPin,
+  byte relayMotorPin1,
+  byte relayMotorPin2
 ) : BaseActuator(posPerThousandAccuracy, posInputMinVolts, posInputMaxVolts, posInputPin)
 {
   _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
-  _r1Pin = r1Pin;
-  _r2Pin = r2Pin;
-  _r3Pin = r3Pin;
-  _r4Pin = r4Pin;
+  _relaySourceFoldPin = relaySourceFoldPin;
+  _relaySourceUnfoldPin = relaySourceUnfoldPin;
+  _relayMotorPin1 = relayMotorPin1;
+  _relayMotorPin2 = relayMotorPin2;
 
   pinMode(_isTotallyFoldedInputPin, INPUT);
-  pinMode(_r1Pin, OUTPUT);
-  pinMode(_r2Pin, OUTPUT);
-  pinMode(_r3Pin, OUTPUT);
-  pinMode(_r4Pin, OUTPUT);
+  pinMode(_relaySourceFoldPin, OUTPUT);
+  pinMode(_relaySourceUnfoldPin, OUTPUT);
+  pinMode(_relayMotorPin1, OUTPUT);
+  pinMode(_relayMotorPin2, OUTPUT);
 }
 
 bool RelayActuator::_isTotallyFolded() {
@@ -36,13 +36,15 @@ bool RelayActuator::_isTotallyUnfolded() {
 }
 
 void RelayActuator::_startFolding() {
-
+  _setFoldSourceRelays();
+  _connectMotorRelays();
 }
 
 void RelayActuator::_startUnfolding() {
-
+  _setUnfoldSourceRelays();
+  _connectMotorRelays();
 }
 
-void RelayActuator::_stop() {
-
+void RelayActuator::stop() {
+  _disconnectMotorRelays();
 }

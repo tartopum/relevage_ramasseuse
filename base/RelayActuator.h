@@ -12,11 +12,13 @@ class RelayActuator: public BaseActuator {
       float posInputMaxVolts,
       byte posInputPin,
       byte isTotallyFoldedInputPin,
-      byte r1Pin,
-      byte r2Pin,
-      byte r3Pin,
-      byte r4Pin
+      byte relaySourceFoldPin,
+      byte relaySourceUnfoldPin,
+      byte relayMotorPin1,
+      byte relayMotorPin2
     );
+
+    void stop();
 
   protected:
     // Fin de course : verin totalement ferme
@@ -25,12 +27,24 @@ class RelayActuator: public BaseActuator {
     // A priori, la fin de course totalement ouvert ne sera jamais atteinte,
     // donc on ne definit pas d'entree correspondante.
     byte _isTotallyFoldedInputPin;
-    byte _r1Pin;
-    byte _r2Pin;
-    byte _r3Pin;
-    byte _r4Pin;
 
-    void _stop();
+    // Envoient du (+) ou du (-) sur les pins de l'electrovanne.
+    //
+    // relaySourceFold est connecte au pin de l'electrovanne qui a besoin de (+)
+    // pour que le verin se replie.
+    byte _relaySourceFoldPin;
+    // relaySourceUnfold est connecte au pin de l'electrovanne qui a besoin de (+)
+    // pour que le verin se deplie.
+    byte _relaySourceUnfoldPin;
+
+    // Transmettent le courant des relais sources a l'electrovanne ou coupent le courant.
+    byte _relayMotorPin1;
+    byte _relayMotorPin2;
+
+    virtual void _setFoldSourceRelays() = 0;
+    virtual void _setUnfoldSourceRelays() = 0;
+    virtual void _connectMotorRelays() = 0;
+    virtual void _disconnectMotorRelays() = 0;
     void _startFolding();
     void _startUnfolding();
     bool _isTotallyFolded();

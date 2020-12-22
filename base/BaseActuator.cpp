@@ -25,7 +25,7 @@ void BaseActuator::stepTo(int targetPerThousand) {
   bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
   bool cannotStep = (posDelta < 0 && _isTotallyFolded()) || (posDelta > 0 && _isTotallyUnfolded());
   if (isAtPos || cannotStep) {
-    _stop();
+    stop();
     return;
   }
   (posDelta > 0) ? _startUnfolding() : _startFolding();

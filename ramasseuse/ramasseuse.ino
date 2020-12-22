@@ -38,7 +38,69 @@
 #define VERIN_D_PIN_R4 0
 
 
-RelayActuator actuatorLeft(
+class Actuator : public RelayActuator {
+  public:
+    Actuator(
+      int posPerThousandAccuracy,
+      float posInputMinVolts,
+      float posInputMaxVolts,
+      byte posInputPin,
+      byte isTotallyFoldedInputPin,
+      byte relaySourceFoldPin,
+      byte relaySourceUnfoldPin,
+      byte relayMotorPin1,
+      byte relayMotorPin2
+    ) : RelayActuator(
+      posPerThousandAccuracy,
+      posInputMinVolts,
+      posInputMaxVolts,
+      posInputPin,
+      isTotallyFoldedInputPin,
+      relaySourceFoldPin,
+      relaySourceUnfoldPin,
+      relayMotorPin1,
+      relayMotorPin2
+    ) {};
+
+  protected:
+    /*
+     * relaySourceFold est par defaut connecte au (+)
+     * relaySourceUnfold est par defaut connecte au (-)
+     */
+
+    void _setFoldSourceRelays() {
+      // On place les relais dans leurs positions par defaut pour envoyer du
+      // (+) avec relaySourceFold et du (-) avec relaySourceUnfold.
+      digitalWrite(_relaySourceFoldPin, LOW);
+      digitalWrite(_relaySourceUnfoldPin, LOW);
+    };
+
+    void _setUnfoldSourceRelays() {
+      // On active les relais pour envoyer du (-) avec relaySourceFold et du
+      // (+) avec relaySourceUnfold.
+      digitalWrite(_relaySourceFoldPin, HIGH);
+      digitalWrite(_relaySourceUnfoldPin, HIGH);
+    };
+
+    /*
+     * relayMotorPin1 est par defaut ouvert, le courant ne passe pas
+     * relayMotorPin2 est par defaut ouvert, le courant ne passe pas
+     */
+
+    void _connectMotorRelays() {
+      // On actionne les relais pour les fermer et connecter l'electrovanne au courant.
+      digitalWrite(_relayMotorPin1, HIGH);
+      digitalWrite(_relayMotorPin2, HIGH);
+    };
+
+    void _disconnectMotorRelays() {
+      // On desactive les relais pour les ouvrir et couper le courant de l'electrovanne.
+      digitalWrite(_relayMotorPin1, LOW);
+      digitalWrite(_relayMotorPin2, LOW);
+    };
+};
+
+Actuator actuatorLeft(
   PRECISION_POSITION_POUR_MILLE,
   VERIN_G_MIN_VOLTS,
   VERIN_G_MAX_VOLTS,
@@ -50,7 +112,7 @@ RelayActuator actuatorLeft(
   VERIN_G_PIN_R4
 );
 
-RelayActuator actuatorRight(
+Actuator actuatorRight(
   PRECISION_POSITION_POUR_MILLE,
   VERIN_D_MIN_VOLTS,
   VERIN_D_MAX_VOLTS,
@@ -69,6 +131,8 @@ Knob targetPosKnob(
 );
 
 void setup() {
+  actuatorLeft.stop();
+  actuatorRight.stop();
 }
 
 void loop() {
