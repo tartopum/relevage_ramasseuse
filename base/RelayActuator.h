@@ -2,11 +2,11 @@
 #define Actuator_h
 
 #include "Arduino.h"
-#include "src/BaseActuator.h"
+#include "BaseActuator.h"
 
-class Actuator: public BaseActuator {
+class RelayActuator: public BaseActuator {
   public:
-    Actuator(
+    RelayActuator(
       int posPerThousandAccuracy,
       float posInputMinVolts,
       float posInputMaxVolts,

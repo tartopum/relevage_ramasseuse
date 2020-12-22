@@ -1,6 +1,6 @@
-#include "Actuator.h"
+#include "RelayActuator.h"
 
-Actuator::Actuator(
+RelayActuator::RelayActuator(
   int posPerThousandAccuracy,
   float posInputMinVolts,
   float posInputMaxVolts,
@@ -25,24 +25,24 @@ Actuator::Actuator(
   pinMode(_r4Pin, OUTPUT);
 }
 
-bool Actuator::_isTotallyFolded() {
+bool RelayActuator::_isTotallyFolded() {
   return digitalRead(_isTotallyFoldedInputPin) == HIGH;
 }
 
-bool Actuator::_isTotallyUnfolded() {
+bool RelayActuator::_isTotallyUnfolded() {
   // On n'a pas de capteur pour ce cas, qui n'est pas cense arriver. Mais on
   // definit quand meme la methode pour la carte du code.
   return false;
 }
 
-void Actuator::_startFolding() {
+void RelayActuator::_startFolding() {
 
 }
 
-void Actuator::_startUnfolding() {
+void RelayActuator::_startUnfolding() {
 
 }
 
-void Actuator::_stop() {
+void RelayActuator::_stop() {
 
 }

@@ -1,4 +1,4 @@
-#include "Actuator.h"
+#include "src/RelayActuator.h"
 #include "Knob.h"
 
 /*
@@ -38,7 +38,7 @@
 #define VERIN_D_PIN_R4 0
 
 
-Actuator actuatorLeft(
+RelayActuator actuatorLeft(
   PRECISION_POSITION_POUR_MILLE,
   VERIN_G_MIN_VOLTS,
   VERIN_G_MAX_VOLTS,
@@ -50,7 +50,7 @@ Actuator actuatorLeft(
   VERIN_G_PIN_R4
 );
 
-Actuator actuatorRight(
+RelayActuator actuatorRight(
   PRECISION_POSITION_POUR_MILLE,
   VERIN_D_MIN_VOLTS,
   VERIN_D_MAX_VOLTS,
