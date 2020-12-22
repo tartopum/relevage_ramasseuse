@@ -145,6 +145,12 @@ Knob targetPosKnob(
   POTAR_PIN_ENTREE
 );
 
+bool isModeAuto = true;
+
+void raiseAlert() {
+
+}
+
 void setup() {
   actuatorLeft.stop();
   actuatorRight.stop();
@@ -199,7 +205,16 @@ void loop() {
   et donc qu'ils sont de la meme longueur si on veut qu'une meme position relative
   corresponde a deux positions absolues identiques.
   */
+  if (!isModeAuto) {
+    return;
+  }
   float targetPosRatio = targetPosKnob.readTargetPosRatio();
   actuatorLeft.startMovingTo(targetPosRatio);
   actuatorRight.startMovingTo(targetPosRatio);
+  if (actuatorLeft.looksBlocked() || actuatorRight.looksBlocked()) {
+    actuatorLeft.stop();
+    actuatorRight.stop();
+    raiseAlert();
+    isModeAuto = false;
+  }
 }

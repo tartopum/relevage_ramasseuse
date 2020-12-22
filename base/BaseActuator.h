@@ -52,7 +52,6 @@ class BaseActuator {
     virtual void _stop() = 0;
     virtual bool _isTotallyFolded() = 0;
     virtual bool _isTotallyUnfolded() = 0;
-    // virtual void _raiseAlert() = 0;
 };
 
 #endif
