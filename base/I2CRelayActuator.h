@@ -17,19 +17,18 @@ class I2CRelayActuator: public BaseActuator {
       unsigned long maxMovingTime,
       float movingTimeAlertCoef,
       int relayI2CAddr,
-      bool stopRelayStates[4],
-      bool foldingRelayStates[4],
-      bool unfoldingRelayStates[4]
+      uint8_t stopRelayState,
+      uint8_t foldingRelayState,
+      uint8_t unfoldingRelayState
     );
 
   protected:
     Multi_Channel_Relay _relay;
 
-    bool _stopRelayStates[4];
-    bool _foldingRelayStates[4];
-    bool _unfoldingRelayStates[4];
+    uint8_t _stopRelayState;
+    uint8_t _foldingRelayState;
+    uint8_t _unfoldingRelayState;
 
-    void _cmdRelays(bool states[4]);
     void _startFolding();
     void _startUnfolding();
     void _stop();
