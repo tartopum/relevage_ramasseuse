@@ -14,6 +14,7 @@ class BasePinRelayActuator: public BaseActuator {
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
       int minSpeedAlert,
+      unsigned int checkPeriod,
       byte relaySourceFoldPin,
       byte relaySourceUnfoldPin,
       byte relayMotorPin1,

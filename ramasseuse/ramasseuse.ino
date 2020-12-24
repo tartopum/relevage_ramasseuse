@@ -8,7 +8,7 @@
 // Potar
 #define POTAR_MIN_VOLTS 0
 #define POTAR_MAX_VOLTS 5
-#define POTAR_PIN_ENTREE 0
+#define POTAR_PIN_ENTREE A1
 
 // Precision
 // Pour eviter les micro-deplacements permanents dus a des micro-variations des
@@ -26,6 +26,7 @@
 //   donc vitesse min = 100
 #define VERIN_G_VITESSE_MIN 100
 #define VERIN_D_VITESSE_MIN 100
+#define VERIN_PERIODE_CHECK 3000
 #define BUZZER_PIN_SORTIE 2
 
 // Verin gauche
@@ -59,6 +60,7 @@ I2CRelayActuator actuatorLeft(
   VERIN_G_PIN_FIN_COURSE_REPLIE,
   VERIN_G_PIN_FIN_COURSE_DEPLIE,
   VERIN_G_VITESSE_MIN,
+  VERIN_PERIODE_CHECK,
   VERIN_G_RELAIS_ADR_I2C,
   VERIN_G_ETAT_RELAIS_STOP,
   VERIN_G_ETAT_RELAIS_REPLIER,
@@ -73,6 +75,7 @@ I2CRelayActuator actuatorRight(
   VERIN_D_PIN_FIN_COURSE_REPLIE,
   VERIN_D_PIN_FIN_COURSE_DEPLIE,
   VERIN_D_VITESSE_MIN,
+  VERIN_PERIODE_CHECK,
   VERIN_D_RELAIS_ADR_I2C,
   VERIN_D_ETAT_RELAIS_STOP,
   VERIN_D_ETAT_RELAIS_REPLIER,
@@ -131,8 +134,10 @@ void loop() {
     actuatorRight.stop();
     raiseAlert();
   }
+  /*
   if (!alertRaised) {
     actuatorLeft.startMovingTo(targetPos);
     actuatorRight.startMovingTo(targetPos);
   }
+  */
 }

@@ -8,6 +8,7 @@ I2CRelayActuator::I2CRelayActuator(
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
   int minSpeedAlert,
+  unsigned int checkPeriod,
   int relayI2CAddr,
   uint8_t stopRelayState,
   uint8_t foldingRelayState,
@@ -19,7 +20,8 @@ I2CRelayActuator::I2CRelayActuator(
   posInputPin,
   isTotallyFoldedInputPin,
   isTotallyUnfoldedInputPin,
-  minSpeedAlert
+  minSpeedAlert,
+  checkPeriod
 )
 {
   _relay.begin(relayI2CAddr);

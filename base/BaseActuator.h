@@ -12,7 +12,8 @@ class BaseActuator {
       byte posInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
-      int minSpeedAlert
+      int minSpeedAlert,
+      unsigned int checkPeriod
     );
 
     void startMovingTo(int target);
@@ -49,6 +50,7 @@ class BaseActuator {
     int _lastCheckPos = -1;
     unsigned long _lastCheckTime = 0;
     int _minSpeedAlert;  // En pour-mille/s
+    unsigned int _checkPeriod = 3000;
 
     int _readPos();
     int _computePosDelta();

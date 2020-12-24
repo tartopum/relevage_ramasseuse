@@ -7,7 +7,8 @@ BaseActuator::BaseActuator(
   byte posInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
-  int minSpeedAlert
+  int minSpeedAlert,
+  unsigned int checkPeriod
 ) {
     _posAccuracy = posAccuracy;
   _posInputMin = posInputMinVolts / 5 * 1023;
@@ -15,6 +16,7 @@ BaseActuator::BaseActuator(
   _posInputPin = posInputPin;
 
   _minSpeedAlert = minSpeedAlert;
+  _checkPeriod = checkPeriod;
 
   _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
   _isTotallyUnfoldedInputPin = isTotallyUnfoldedInputPin;
@@ -61,9 +63,18 @@ bool BaseActuator::looksBlocked() {
     _lastCheckTime = millis();
     return false;
   }
+
   int pos = _readPos();
   unsigned long now = millis();
-  float movingTime = (float)(now - _lastCheckTime) / 1000;
+  unsigned long duration = now - _lastCheckTime;
+
+  // On attend que le deplacement ait dure un certain temps avant de calculer
+  // la vitesse, sinon on est trop soumis aux petits aleas de deplacement.
+  if (duration < _checkPeriod) {
+    return false;
+  }
+
+  float movingTime = (float)duration / 1000;
   int speed = abs(pos - _lastCheckPos) / movingTime;
   
   _lastCheckPos = pos;

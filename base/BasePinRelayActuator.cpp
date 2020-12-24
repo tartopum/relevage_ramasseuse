@@ -8,6 +8,7 @@ BasePinRelayActuator::BasePinRelayActuator(
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
   int minSpeedAlert,
+  unsigned int checkPeriod,
   byte relaySourceFoldPin,
   byte relaySourceUnfoldPin,
   byte relayMotorPin1,
@@ -19,7 +20,8 @@ BasePinRelayActuator::BasePinRelayActuator(
   posInputPin,
   isTotallyFoldedInputPin,
   isTotallyUnfoldedInputPin,
-  minSpeedAlert
+  minSpeedAlert,
+  checkPeriod
 )
 {
   _relaySourceFoldPin = relaySourceFoldPin;
