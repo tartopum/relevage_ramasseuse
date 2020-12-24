@@ -17,12 +17,12 @@ class BaseActuator {
     );
 
     void startMovingTo(int target);
+    bool check();
     void stop();
     bool isFolding();
     bool isUnfolding();
     bool isTotallyFolded();
     bool isTotallyUnfolded();
-    bool looksBlocked();
 
   protected:
     // Le pin pour lire la valeur du capteur de position du verin.
@@ -42,6 +42,8 @@ class BaseActuator {
     // La valeur de analogRead() du capteur de position quand le verin est totalement ouvert.
     int _posInputMax;
 
+    int _targetPos = -1;
+
     bool _moving = false;
     bool _folding = false;
 
@@ -54,6 +56,7 @@ class BaseActuator {
 
     int _readPos();
     int _computePosDelta();
+    bool _looksBlocked();
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;
     virtual void _stop() = 0;

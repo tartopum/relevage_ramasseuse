@@ -118,26 +118,19 @@ void loop() {
   et donc qu'ils sont de la meme longueur si on veut qu'une meme position relative
   corresponde a deux positions absolues identiques.
   */
-  int targetPos = targetPosKnob.readTargetPos();
 
+  if (!actuatorLeft.check() || !actuatorRight.check()) {
+    raiseAlert();
+  }
+
+  int targetPos = targetPosKnob.readTargetPos();
   if (abs(targetPos - prevTargetPos) > PRECISION_POSITION_POUR_MILLE) {
     // Un humain est intervenu sur le potentiometre de cabine, on arrete l'alerte.
     // On suppose en effet qu'il sait ce qu'il fait et commande les verins pour
     // regler le probleme, si probleme il y a.
     stopAlert();
-  }
-
-  prevTargetPos = targetPos;
-
-  if (actuatorLeft.looksBlocked() || actuatorRight.looksBlocked()) {
-    actuatorLeft.stop();
-    actuatorRight.stop();
-    raiseAlert();
-  }
-  /*
-  if (!alertRaised) {
+    prevTargetPos = targetPos;
     actuatorLeft.startMovingTo(targetPos);
     actuatorRight.startMovingTo(targetPos);
   }
-  */
 }

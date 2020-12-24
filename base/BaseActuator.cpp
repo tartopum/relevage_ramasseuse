@@ -29,7 +29,7 @@ BaseActuator::BaseActuator(
 int BaseActuator::_readPos() {
   const int inputVal = analogRead(_posInputPin);
   const float posRatio = (float)(inputVal - _posInputMin) / (float)(_posInputMax - _posInputMin);
-  return (int)(posRatio * 1000);
+  return posRatio * 1000;
 }
 
 bool BaseActuator::isFolding() {
@@ -54,7 +54,7 @@ bool BaseActuator::isTotallyUnfolded() {
   return digitalRead(_isTotallyUnfoldedInputPin) == HIGH;
 }
 
-bool BaseActuator::looksBlocked() {
+bool BaseActuator::_looksBlocked() {
   if (!_moving) {
     return false;
   }
@@ -83,23 +83,38 @@ bool BaseActuator::looksBlocked() {
   return speed > _minSpeedAlert;
 }
 
-void BaseActuator::startMovingTo(int target) {
-  int posDelta = target - _readPos();
+bool BaseActuator::check() {
+  if(_looksBlocked()) {
+    stop();
+    return false;
+  }
+  int posDelta = _targetPos - _readPos();
   bool isAtPos = abs(posDelta) < _posAccuracy;
   bool cannotStep = (posDelta < 0 && isTotallyFolded()) || (posDelta > 0 && isTotallyUnfolded());
   if (isAtPos || cannotStep) {
     stop();
+  }
+  return true;
+}
+
+void BaseActuator::startMovingTo(int target) {
+  _targetPos = target;
+  int posDelta = _targetPos - _readPos();
+  bool isAtPos = abs(posDelta) < _posAccuracy;
+  bool cannotStep = (posDelta < 0 && isTotallyFolded()) || (posDelta > 0 && isTotallyUnfolded());
+  if (isAtPos || cannotStep) {
     return;
   }
 
-  _moving = true;
-  if (posDelta > 0) {
+  if (posDelta > 0 && !isUnfolding()) {
     _startUnfolding();
     _folding = false;
-  } else {
+  } else if (posDelta < 0 && !isFolding()) {
     _startFolding();
     _folding = true;
   }  
+
+  _moving = true;
 }
 
 void BaseActuator::stop() {
