@@ -84,11 +84,17 @@ Knob targetPosKnob(
   POTAR_PIN_ENTREE
 );
 
-bool isModeAuto = true;
-int targetPosPerThousand;
+bool alertRaised = false;
+int prevTargetPosPerThousand;
 
 void raiseAlert() {
+  alertRaised = true;
   digitalWrite(BUZZER_PIN_SORTIE, HIGH);
+}
+
+void stopAlert() {
+  alertRaised = false;
+  digitalWrite(BUZZER_PIN_SORTIE, LOW);
 }
 
 void setup() {
@@ -96,51 +102,11 @@ void setup() {
   actuatorRight.stop();
 
   pinMode(BUZZER_PIN_SORTIE, OUTPUT);
-  digitalWrite(BUZZER_PIN_SORTIE, LOW);
+  stopAlert();
 }
 
 void loop() {
   /*
-  Pour avoir des deplacements des verins "simultanes" (afin d'eviter de trop grands
-  ecarts de positions), on les deplace l'un apres l'autre petit a petit.
-
-  Le fait de lire la position cible apres chaque petit deplacement permet
-  de prendre en compte un changement de cible en cours de route.
-  Si on attendait que les deplacements soient termines avant de lire la nouvelle
-  cible, on pourrait se retrouver a faire des allers-retours. Par exemple :
-
-   1. Position courante : d = 20cm
-   2. Lecture de la position cible : d = 2cm
-   3. Deplacement a d = 19cm
-   4. Deplacement a d = 18cm
-   5. Deplacement a d = 17cm
-   6. Changement de position cible : d = 10cm (non detecte car le deplacement
-      precedent n'est pas termine)
-   7. Deplacement a d = 16cm
-   8. ...
-   9. Deplacement a d = 2cm
-  10. Lecture de la position cible : d = 10cm
-  11. Deplacement a d = 3cm
-  12. Deplacement a d = 4cm
-  13. ...
-  14. Deplacement a d = 10cm
-  15. Lecture de la position cible : d = 10cm
-  16. Position cible deja atteinte, rien a faire
-  
-  Au lieu de :
-  
-   1. Position courante : d = 20cm
-   2. Lecture de la position cible : d = 2cm
-   3. Deplacement a d = 19cm
-   4. Deplacement a d = 18cm
-   5. Deplacement a d = 17cm
-   6. Changement de position cible : d = 10cm
-   7. Deplacement a d = 16cm
-   8. ...
-   9. Deplacement a d = 10cm
-  10. Lecture de la position cible : d = 10cm
-  11. Position cible deja atteinte, rien a faire
-
   Travailler avec des positions relatives au niveau du potentiometre permet de
   rester dans le domaine des tensions et de ne pas avoir a faire des conversions
   en distance.
@@ -148,16 +114,24 @@ void loop() {
   et donc qu'ils sont de la meme longueur si on veut qu'une meme position relative
   corresponde a deux positions absolues identiques.
   */
-  if (!isModeAuto) {
-    return;
+  int targetPosPerThousand = targetPosKnob.readTargetPosPerThousand();
+
+  if (abs(targetPosPerThousand - prevTargetPosPerThousand) > PRECISION_POSITION_POUR_MILLE) {
+    // Un humain est intervenu sur le potentiometre de cabine, on arrete l'alerte.
+    // On suppose en effet qu'il sait ce qu'il fait et commande les verins pour
+    // regler le probleme, si probleme il y a.
+    stopAlert();
   }
-  targetPosPerThousand = targetPosKnob.readTargetPosPerThousand();
-  actuatorLeft.startMovingTo(targetPosPerThousand);
-  actuatorRight.startMovingTo(targetPosPerThousand);
+
+  prevTargetPosPerThousand = targetPosPerThousand;
+
   if (actuatorLeft.looksBlocked() || actuatorRight.looksBlocked()) {
     actuatorLeft.stop();
     actuatorRight.stop();
     raiseAlert();
-    isModeAuto = false;
+  }
+  if (!alertRaised) {
+    actuatorLeft.startMovingTo(targetPosPerThousand);
+    actuatorRight.startMovingTo(targetPosPerThousand);
   }
 }
