@@ -7,7 +7,7 @@ class TargetPosReader {
     // forme de ratio.
     // Comme ca, la conversion ratio -> distance ne se fait qu'au niveau
     // de la classe qui commande les verins.
-    virtual int readTargetPosPerThousand() = 0;
+    virtual int readTargetPos() = 0;
 };
 
 #endif

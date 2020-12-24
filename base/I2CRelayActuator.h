@@ -8,7 +8,7 @@
 class I2CRelayActuator: public BaseActuator {
   public:
     I2CRelayActuator(
-      int posPerThousandAccuracy,
+      int posAccuracy,
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,

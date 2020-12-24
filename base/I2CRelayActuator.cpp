@@ -1,7 +1,7 @@
 #include "I2CRelayActuator.h"
 
 I2CRelayActuator::I2CRelayActuator(
-  int posPerThousandAccuracy,
+  int posAccuracy,
   float posInputMinVolts,
   float posInputMaxVolts,
   byte posInputPin,
@@ -13,7 +13,7 @@ I2CRelayActuator::I2CRelayActuator(
   uint8_t foldingRelayState,
   uint8_t unfoldingRelayState
 ) : BaseActuator(
-  posPerThousandAccuracy,
+  posAccuracy,
   posInputMinVolts,
   posInputMaxVolts,
   posInputPin,

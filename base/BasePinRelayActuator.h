@@ -7,7 +7,7 @@
 class BasePinRelayActuator: public BaseActuator {
   public:
     BasePinRelayActuator(
-      int posPerThousandAccuracy,
+      int posAccuracy,
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,

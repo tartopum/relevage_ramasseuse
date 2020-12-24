@@ -86,7 +86,7 @@ Knob targetPosKnob(
 );
 
 bool alertRaised = false;
-int prevTargetPosPerThousand;
+int prevTargetPos;
 
 void raiseAlert() {
   alertRaised = true;
@@ -115,16 +115,16 @@ void loop() {
   et donc qu'ils sont de la meme longueur si on veut qu'une meme position relative
   corresponde a deux positions absolues identiques.
   */
-  int targetPosPerThousand = targetPosKnob.readTargetPosPerThousand();
+  int targetPos = targetPosKnob.readTargetPos();
 
-  if (abs(targetPosPerThousand - prevTargetPosPerThousand) > PRECISION_POSITION_POUR_MILLE) {
+  if (abs(targetPos - prevTargetPos) > PRECISION_POSITION_POUR_MILLE) {
     // Un humain est intervenu sur le potentiometre de cabine, on arrete l'alerte.
     // On suppose en effet qu'il sait ce qu'il fait et commande les verins pour
     // regler le probleme, si probleme il y a.
     stopAlert();
   }
 
-  prevTargetPosPerThousand = targetPosPerThousand;
+  prevTargetPos = targetPos;
 
   if (actuatorLeft.looksBlocked() || actuatorRight.looksBlocked()) {
     actuatorLeft.stop();
@@ -132,7 +132,7 @@ void loop() {
     raiseAlert();
   }
   if (!alertRaised) {
-    actuatorLeft.startMovingTo(targetPosPerThousand);
-    actuatorRight.startMovingTo(targetPosPerThousand);
+    actuatorLeft.startMovingTo(targetPos);
+    actuatorRight.startMovingTo(targetPos);
   }
 }

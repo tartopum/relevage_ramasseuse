@@ -12,7 +12,7 @@ Knob::Knob(
   pinMode(_pin, INPUT);
 }
 
-int Knob::readTargetPosPerThousand() {
+int Knob::readTargetPos() {
   const int inputVal = analogRead(_pin);
   if (inputVal < _minInputVal) {
     return 0;

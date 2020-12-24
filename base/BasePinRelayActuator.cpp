@@ -1,7 +1,7 @@
 #include "BasePinRelayActuator.h"
 
 BasePinRelayActuator::BasePinRelayActuator(
-  int posPerThousandAccuracy,
+  int posAccuracy,
   float posInputMinVolts,
   float posInputMaxVolts,
   byte posInputPin,
@@ -13,7 +13,7 @@ BasePinRelayActuator::BasePinRelayActuator(
   byte relayMotorPin1,
   byte relayMotorPin2
 ) : BaseActuator(
-  posPerThousandAccuracy,
+  posAccuracy,
   posInputMinVolts,
   posInputMaxVolts,
   posInputPin,

@@ -6,7 +6,7 @@
 class BaseActuator {
   public:
     BaseActuator(
-      int posPerThousandAccuracy,
+      int posAccuracy,
       float posInputMinVolts,
       float posInputMaxVolts,
       byte posInputPin,
@@ -15,7 +15,7 @@ class BaseActuator {
       int minSpeedAlert
     );
 
-    void startMovingTo(int targetPerThousand);
+    void startMovingTo(int target);
     void stop();
     bool isFolding();
     bool isUnfolding();
@@ -35,7 +35,7 @@ class BaseActuator {
     byte _isTotallyUnfoldedInputPin = 0;
 
     // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
-    int _posPerThousandAccuracy;
+    int _posAccuracy;
     // La valeur de analogRead() du capteur de position quand le verin est totalement ferme.
     int _posInputMin;
     // La valeur de analogRead() du capteur de position quand le verin est totalement ouvert.
@@ -46,11 +46,11 @@ class BaseActuator {
 
     // Pour detecter un blocage du verin, on s'assure que sa vitesse de deplacement
     // n'est pas inferieure a une certaine valeur.
-    int _lastCheckPosPerThousand = -1;
+    int _lastCheckPos = -1;
     unsigned long _lastCheckTime = 0;
     int _minSpeedAlert;  // En pour-mille/s
 
-    int _readPosPerThousand();
+    int _readPos();
     int _computePosDelta();
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;

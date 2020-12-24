@@ -1,7 +1,7 @@
 #include "BaseActuator.h"
 
 BaseActuator::BaseActuator(
-  int posPerThousandAccuracy,
+  int posAccuracy,
   float posInputMinVolts,
   float posInputMaxVolts,
   byte posInputPin,
@@ -9,7 +9,7 @@ BaseActuator::BaseActuator(
   byte isTotallyUnfoldedInputPin,
   int minSpeedAlert
 ) {
-    _posPerThousandAccuracy = posPerThousandAccuracy;
+    _posAccuracy = posAccuracy;
   _posInputMin = posInputMinVolts / 5 * 1023;
   _posInputMax = posInputMaxVolts / 5 * 1023;
   _posInputPin = posInputPin;
@@ -24,7 +24,7 @@ BaseActuator::BaseActuator(
   pinMode(_isTotallyUnfoldedInputPin, INPUT);
 }
 
-int BaseActuator::_readPosPerThousand() {
+int BaseActuator::_readPos() {
   const int inputVal = analogRead(_posInputPin);
   const float posRatio = (float)(inputVal - _posInputMin) / (float)(_posInputMax - _posInputMin);
   return (int)(posRatio * 1000);
@@ -56,25 +56,25 @@ bool BaseActuator::looksBlocked() {
   if (!_moving) {
     return false;
   }
-  if (_lastCheckPosPerThousand == -1) {
-    _lastCheckPosPerThousand = _readPosPerThousand();
+  if (_lastCheckPos == -1) {
+    _lastCheckPos = _readPos();
     _lastCheckTime = millis();
     return false;
   }
-  int pos = _readPosPerThousand();
+  int pos = _readPos();
   unsigned long now = millis();
   float movingTime = (float)(now - _lastCheckTime) / 1000;
-  int speed = abs(pos - _lastCheckPosPerThousand) / movingTime;
+  int speed = abs(pos - _lastCheckPos) / movingTime;
   
-  _lastCheckPosPerThousand = pos;
+  _lastCheckPos = pos;
   _lastCheckTime = now;
 
   return speed > _minSpeedAlert;
 }
 
-void BaseActuator::startMovingTo(int targetPerThousand) {
-  int posDelta = targetPerThousand - _readPosPerThousand();
-  bool isAtPos = abs(posDelta) < _posPerThousandAccuracy;
+void BaseActuator::startMovingTo(int target) {
+  int posDelta = target - _readPos();
+  bool isAtPos = abs(posDelta) < _posAccuracy;
   bool cannotStep = (posDelta < 0 && isTotallyFolded()) || (posDelta > 0 && isTotallyUnfolded());
   if (isAtPos || cannotStep) {
     stop();
