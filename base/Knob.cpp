@@ -12,13 +12,13 @@ Knob::Knob(
   pinMode(_pin, INPUT);
 }
 
-float Knob::readTargetPosRatio() {
+int Knob::readTargetPosPerThousand() {
   const int inputVal = analogRead(_pin);
   if (inputVal < _minInputVal) {
     return 0;
   }
   if (inputVal > _maxInputVal) {
-    return 1;
+    return 1000;
   }
-  return (float)(inputVal - _minInputVal) / (float)(_maxInputVal - _minInputVal);
+  return (float)(inputVal - _minInputVal) / (float)(_maxInputVal - _minInputVal) * 1000;
 }

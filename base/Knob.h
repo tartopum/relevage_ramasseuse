@@ -12,7 +12,7 @@ class Knob: public TargetPosReader {
       byte pin
     );
 
-    float readTargetPosRatio();
+    int readTargetPosPerThousand();
 
   private:
     byte _pin;

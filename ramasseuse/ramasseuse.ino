@@ -85,6 +85,7 @@ Knob targetPosKnob(
 );
 
 bool isModeAuto = true;
+int targetPosPerThousand;
 
 void raiseAlert() {
   digitalWrite(BUZZER_PIN_SORTIE, HIGH);
@@ -150,9 +151,9 @@ void loop() {
   if (!isModeAuto) {
     return;
   }
-  float targetPosRatio = targetPosKnob.readTargetPosRatio();
-  actuatorLeft.startMovingTo(targetPosRatio);
-  actuatorRight.startMovingTo(targetPosRatio);
+  targetPosPerThousand = targetPosKnob.readTargetPosPerThousand();
+  actuatorLeft.startMovingTo(targetPosPerThousand);
+  actuatorRight.startMovingTo(targetPosPerThousand);
   if (actuatorLeft.looksBlocked() || actuatorRight.looksBlocked()) {
     actuatorLeft.stop();
     actuatorRight.stop();
