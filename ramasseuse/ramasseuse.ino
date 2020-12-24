@@ -21,6 +21,7 @@
 // Si le verin met plus que x fois la duree de deplacement prevue, on lance une
 // alerte.
 #define VERIN_COEF_DUREE_DEPLACEMENT_ALERTE 2
+#define BUZZER_PIN_SORTIE 2
 
 // Verin gauche
 #define VERIN_G_MIN_VOLTS 0
@@ -28,7 +29,7 @@
 #define VERIN_G_PIN_ENTREE 0
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_G_PIN_FIN_COURSE_DEPLIE 0
-#define VERIN_G_RELAIS_ADR_I2C 0
+#define VERIN_G_RELAIS_ADR_I2C 0x11
 #define VERIN_G_DUREE_MAX_DEPLACEMENT 0
 #define VERIN_G_ETAT_RELAIS_STOP 0
 #define VERIN_G_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
@@ -40,7 +41,7 @@
 #define VERIN_D_PIN_ENTREE 0
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_D_PIN_FIN_COURSE_DEPLIE 0
-#define VERIN_D_RELAIS_ADR_I2C 0
+#define VERIN_D_RELAIS_ADR_I2C 0x21
 #define VERIN_D_DUREE_MAX_DEPLACEMENT 0
 #define VERIN_D_ETAT_RELAIS_STOP 0
 #define VERIN_D_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
@@ -86,12 +87,15 @@ Knob targetPosKnob(
 bool isModeAuto = true;
 
 void raiseAlert() {
-  // TODO
+  digitalWrite(BUZZER_PIN_SORTIE, HIGH);
 }
 
 void setup() {
   actuatorLeft.stop();
   actuatorRight.stop();
+
+  pinMode(BUZZER_PIN_SORTIE, OUTPUT);
+  digitalWrite(BUZZER_PIN_SORTIE, LOW);
 }
 
 void loop() {
