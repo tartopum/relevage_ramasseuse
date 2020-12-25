@@ -2,8 +2,8 @@
 
 I2CRelayActuator::I2CRelayActuator(
   int posAccuracy,
-  float posInputMinVolts,
-  float posInputMaxVolts,
+  int posInputMinVal,
+  int posInputMaxVal,
   byte posInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
@@ -15,8 +15,8 @@ I2CRelayActuator::I2CRelayActuator(
   uint8_t unfoldingRelayState
 ) : BaseActuator(
   posAccuracy,
-  posInputMinVolts,
-  posInputMaxVolts,
+  posInputMinVal,
+  posInputMaxVal,
   posInputPin,
   isTotallyFoldedInputPin,
   isTotallyUnfoldedInputPin,

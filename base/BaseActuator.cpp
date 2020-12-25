@@ -2,8 +2,8 @@
 
 BaseActuator::BaseActuator(
   int posAccuracy,
-  float posInputMinVolts,
-  float posInputMaxVolts,
+  int posInputMinVal,
+  int posInputMaxVal,
   byte posInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
@@ -11,8 +11,8 @@ BaseActuator::BaseActuator(
   unsigned int checkPeriod
 ) {
     _posAccuracy = posAccuracy;
-  _posInputMin = posInputMinVolts / 5 * 1023;
-  _posInputMax = posInputMaxVolts / 5 * 1023;
+  _posInputMin = posInputMinVal;
+  _posInputMax = posInputMaxVal;
   _posInputPin = posInputPin;
 
   _minSpeedAlert = minSpeedAlert;

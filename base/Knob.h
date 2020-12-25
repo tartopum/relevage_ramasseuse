@@ -7,8 +7,8 @@
 class Knob: public TargetPosReader {
   public:
     Knob(
-      float minInputVolts,
-      float maxInputVolts,
+      int minInputVal,
+      int maxInputVal,
       byte pin
     );
 

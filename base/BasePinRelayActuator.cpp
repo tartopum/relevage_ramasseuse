@@ -2,8 +2,8 @@
 
 BasePinRelayActuator::BasePinRelayActuator(
   int posAccuracy,
-  float posInputMinVolts,
-  float posInputMaxVolts,
+  int posInputMinVal,
+  int posInputMaxVal,
   byte posInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
@@ -15,8 +15,8 @@ BasePinRelayActuator::BasePinRelayActuator(
   byte relayMotorPin2
 ) : BaseActuator(
   posAccuracy,
-  posInputMinVolts,
-  posInputMaxVolts,
+  posInputMinVal,
+  posInputMaxVal,
   posInputPin,
   isTotallyFoldedInputPin,
   isTotallyUnfoldedInputPin,

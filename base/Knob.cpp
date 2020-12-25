@@ -1,12 +1,12 @@
 #include "Knob.h"
 
 Knob::Knob(
-  float minInputVolts,
-  float maxInputVolts,
+  int minInputVal,
+  int maxInputVal,
   byte pin
 ) {
-  _minInputVal = minInputVolts / 5 * 1023;
-  _maxInputVal = maxInputVolts / 5 * 1023;
+  _minInputVal = minInputVal;
+  _maxInputVal = maxInputVal;
   _pin = pin;
 
   pinMode(_pin, INPUT);
