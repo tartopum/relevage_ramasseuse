@@ -6,10 +6,10 @@
 class BaseActuator {
   public:
     BaseActuator(
-      int posAccuracy,
-      int posInputMinVal,
-      int posInputMaxVal,
-      byte posInputPin,
+      int lenAccuracy,
+      int foldedInputVal,
+      int unfoldedInputVal,
+      byte lenInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
       int minSpeedAlert,
@@ -25,10 +25,10 @@ class BaseActuator {
     bool isTotallyUnfolded();
 
   protected:
-    // Le pin pour lire la valeur du capteur de position du verin.
-    byte _posInputPin;
+    // Le pin pour lire la valeur du capteur de lenition du verin.
+    byte _lenInputPin;
 
-    // On a un capteur a part, en plus du capteur de position, par mesure de
+    // On a un capteur a part, en plus du capteur de lenition, par mesure de
     // securite pour la fin de course.
     //
     // Si pas de capteur de fin de course, mettre a 0.
@@ -36,26 +36,26 @@ class BaseActuator {
     byte _isTotallyUnfoldedInputPin = 0;
 
     // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
-    int _posAccuracy;
-    // La valeur de analogRead() du capteur de position quand le verin est totalement ferme.
-    int _posInputMin;
-    // La valeur de analogRead() du capteur de position quand le verin est totalement ouvert.
-    int _posInputMax;
+    int _lenAccuracy;
+ 
+    // Les valeurs de analogRead() du capteur de lenition aux lenitions extremes
+    int _foldedInputVal;
+    int _unfoldedInputVal;
 
-    int _targetPos = -1;
+    int _targetLen = -1;
 
     bool _moving = false;
     bool _folding = false;
 
     // Pour detecter un blocage du verin, on s'assure que sa vitesse de deplacement
     // n'est pas inferieure a une certaine valeur.
-    int _lastCheckPos = -1;
+    int _lastCheckLen = -1;
     unsigned long _lastCheckTime = 0;
     int _minSpeedAlert;  // En pour-mille/s
     unsigned int _checkPeriod = 3000;
 
-    int _readPos();
-    int _computePosDelta();
+    int _readLen();
+    int _computeLenDelta();
     bool _looksBlocked();
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;

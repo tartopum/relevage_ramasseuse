@@ -2,22 +2,22 @@
 #define Knob_h
 
 #include "Arduino.h"
-#include "TargetPosReader.h"
+#include "TargetLenReader.h"
 
-class Knob: public TargetPosReader {
+class Knob: public TargetLenReader {
   public:
     Knob(
-      int minInputVal,
-      int maxInputVal,
+      int foldedInputVal,
+      int unfoldedInputVal,
       byte pin
     );
 
-    int readTargetPos();
+    int readTargetLen();
 
   private:
     byte _pin;
-    int _minInputVal;
-    int _maxInputVal;
+    int _foldedInputVal;
+    int _unfoldedInputVal;
 };
 
 #endif

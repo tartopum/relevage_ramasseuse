@@ -5,47 +5,62 @@
  * Variables
  */
 
-// Potar
-#define POTAR_MIN_VAL 0
-#define POTAR_MAX_VAL 5
-#define POTAR_PIN_ENTREE A1
-
-// Precision
+// ************
+// Potar de cabine
+// ************
+#define POTAR_VAL_DEPLIE 0
+#define POTAR_VAL_REPLIE 1023
+#define POTAR_PIN A1
 // Pour eviter les micro-deplacements permanents dus a des micro-variations des
 // capteurs, ce qui abimerait les verins, on definit une marge d'erreur acceptable.
 // On definit cette valeur en pour mille pour avoir des nombres entiers.
 // 5,5% = 55 pour mille
-#define PRECISION_POSITION_POUR_MILLE 50
+//
+// Le rouleau des verins a une amplitude verticale de 60mm.
+// On veut une precision de sa position a 2mm, soit 33pm de 60mm.
+#define PRECISION_POSITION_POUR_MILLE 33
 
+// ************
 // Alerte
-// Les vitesses sont en pour-mille/s
-// Si le verin fait 10cm et qu'on veut lancer une alerte si sa vitesse de deplacement
-// est en-dessous de 1cm/s, on a :
-//   10cm = 1000pm
-//   donc 1cm = 100pm
-//   donc vitesse min = 100
-#define VERIN_G_VITESSE_MIN 100
-#define VERIN_D_VITESSE_MIN 100
-#define VERIN_PERIODE_CHECK 3000
-#define BUZZER_PIN_SORTIE 2
+// ************
+// On lance une alerte si la vitesse de deplacement d'un verin est inferieure a
+// une certaine valeur.
+// Les vitesses sont celles de deplacemenent du verin (et non de la hauteur du
+// rouleau), en mm/s.
+#define VERIN_G_VITESSE_MIN 1 // mm/s
+#define VERIN_D_VITESSE_MIN 1 // mm/s
+#define VERIN_PERIODE_CHECK 3000 // ms
+#define BUZZER_PIN_SORTIE 8
 
+// ************
 // Verin gauche
-#define VERIN_G_MIN_VAL 0
-#define VERIN_G_MAX_VAL 5
-#define VERIN_G_PIN_ENTREE 0
+// ************
+#define VERIN_G_LONGUEUR_UTILISEE 90 // mm
+
+#define VERIN_G_PIN_POS A2
+#define VERIN_G_VAL_DEPLIE 432
+#define VERIN_G_VAL_REPLIE 871
+
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_G_PIN_FIN_COURSE_DEPLIE 0
+
 #define VERIN_G_RELAIS_ADR_I2C 0x11
 #define VERIN_G_ETAT_RELAIS_STOP 0
 #define VERIN_G_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
 #define VERIN_G_ETAT_RELAIS_DEPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 
+// ************
 // Verin droit
-#define VERIN_D_MIN_VAL 0
-#define VERIN_D_MAX_VAL 5
-#define VERIN_D_PIN_ENTREE 0
+// ************
+#define VERIN_D_LONGUEUR_UTILISEE 90 // mm
+
+#define VERIN_D_PIN_POS A3
+#define VERIN_D_VAL_DEPLIE 515
+#define VERIN_D_VAL_REPLIE 935
+
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_D_PIN_FIN_COURSE_DEPLIE 0
+
 #define VERIN_D_RELAIS_ADR_I2C 0x21
 #define VERIN_D_ETAT_RELAIS_STOP 0
 #define VERIN_D_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
@@ -54,12 +69,12 @@
 
 I2CRelayActuator actuatorLeft(
   PRECISION_POSITION_POUR_MILLE,
-  VERIN_G_MIN_VAL,
-  VERIN_G_MAX_VAL,
-  VERIN_G_PIN_ENTREE,
+  VERIN_G_VAL_REPLIE,
+  VERIN_G_VAL_DEPLIE,
+  VERIN_G_PIN_POS,
   VERIN_G_PIN_FIN_COURSE_REPLIE,
   VERIN_G_PIN_FIN_COURSE_DEPLIE,
-  VERIN_G_VITESSE_MIN,
+  VERIN_G_VITESSE_MIN / VERIN_G_LONGUEUR_UTILISEE * 1000,
   VERIN_PERIODE_CHECK,
   VERIN_G_RELAIS_ADR_I2C,
   VERIN_G_ETAT_RELAIS_STOP,
@@ -69,12 +84,12 @@ I2CRelayActuator actuatorLeft(
 
 I2CRelayActuator actuatorRight(
   PRECISION_POSITION_POUR_MILLE,
-  VERIN_D_MIN_VAL,
-  VERIN_D_MAX_VAL,
-  VERIN_D_PIN_ENTREE,
+  VERIN_D_VAL_REPLIE,
+  VERIN_D_VAL_DEPLIE,
+  VERIN_D_PIN_POS,
   VERIN_D_PIN_FIN_COURSE_REPLIE,
   VERIN_D_PIN_FIN_COURSE_DEPLIE,
-  VERIN_D_VITESSE_MIN,
+  VERIN_D_VITESSE_MIN / VERIN_D_LONGUEUR_UTILISEE * 1000,
   VERIN_PERIODE_CHECK,
   VERIN_D_RELAIS_ADR_I2C,
   VERIN_D_ETAT_RELAIS_STOP,
@@ -82,14 +97,14 @@ I2CRelayActuator actuatorRight(
   VERIN_D_ETAT_RELAIS_DEPLIER
 );
 
-Knob targetPosKnob(
-  POTAR_MIN_VAL,
-  POTAR_MAX_VAL,
-  POTAR_PIN_ENTREE
+Knob targetLenKnob(
+  POTAR_VAL_REPLIE,
+  POTAR_VAL_DEPLIE,
+  POTAR_PIN
 );
 
 bool alertRaised = false;
-int prevTargetPos;
+int prevTargetLen;
 
 void raiseAlert() {
   alertRaised = true;
@@ -123,14 +138,14 @@ void loop() {
     raiseAlert();
   }
 
-  int targetPos = targetPosKnob.readTargetPos();
-  if (abs(targetPos - prevTargetPos) > PRECISION_POSITION_POUR_MILLE) {
+  int targetLen = targetLenKnob.readTargetLen();
+  if (abs(targetLen - prevTargetLen) > PRECISION_POSITION_POUR_MILLE) {
     // Un humain est intervenu sur le potentiometre de cabine, on arrete l'alerte.
     // On suppose en effet qu'il sait ce qu'il fait et commande les verins pour
     // regler le probleme, si probleme il y a.
     stopAlert();
-    prevTargetPos = targetPos;
-    actuatorLeft.startMovingTo(targetPos);
-    actuatorRight.startMovingTo(targetPos);
+    prevTargetLen = targetLen;
+    actuatorLeft.startMovingTo(targetLen);
+    actuatorRight.startMovingTo(targetLen);
   }
 }

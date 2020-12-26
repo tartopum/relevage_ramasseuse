@@ -9,8 +9,8 @@ class I2CRelayActuator: public BaseActuator {
   public:
     I2CRelayActuator(
       int posAccuracy,
-      int posInputMinVal,
-      int posInputMaxVal,
+      int foldedInputVal,
+      int unfoldedInputVal,
       byte posInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,

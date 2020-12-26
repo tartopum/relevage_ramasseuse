@@ -8,8 +8,8 @@ class BasePinRelayActuator: public BaseActuator {
   public:
     BasePinRelayActuator(
       int posAccuracy,
-      int posInputMinVal,
-      int posInputMaxVal,
+      int foldedInputVal,
+      int unfoldedInputVal,
       byte posInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
