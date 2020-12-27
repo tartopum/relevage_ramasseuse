@@ -12,11 +12,15 @@ class BaseActuator {
       byte lenInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
-      int minSpeedAlert,
+      unsigned int minSpeedAlert,
       unsigned int checkPeriod
     );
 
+    // TODO
+    int _targetLen = -1;
+
     void startMovingTo(int target);
+    int readLen();
     bool check();
     void stop();
     bool isFolding();
@@ -25,10 +29,10 @@ class BaseActuator {
     bool isTotallyUnfolded();
 
   protected:
-    // Le pin pour lire la valeur du capteur de lenition du verin.
+    // Le pin pour lire la valeur du capteur de position du verin.
     byte _lenInputPin;
 
-    // On a un capteur a part, en plus du capteur de lenition, par mesure de
+    // On a un capteur a part, en plus du capteur de position, par mesure de
     // securite pour la fin de course.
     //
     // Si pas de capteur de fin de course, mettre a 0.
@@ -38,11 +42,9 @@ class BaseActuator {
     // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
     int _lenAccuracy;
  
-    // Les valeurs de analogRead() du capteur de lenition aux lenitions extremes
+    // Les valeurs de analogRead() du capteur de position aux positions extremes
     int _foldedInputVal;
     int _unfoldedInputVal;
-
-    int _targetLen = -1;
 
     bool _moving = false;
     bool _folding = false;
@@ -51,10 +53,9 @@ class BaseActuator {
     // n'est pas inferieure a une certaine valeur.
     int _lastCheckLen = -1;
     unsigned long _lastCheckTime = 0;
-    int _minSpeedAlert;  // En pour-mille/s
+    unsigned int _minSpeedAlert = 0;  // En pour-mille/s
     unsigned int _checkPeriod = 3000;
 
-    int _readLen();
     int _computeLenDelta();
     bool _looksBlocked();
     virtual void _startFolding() = 0;

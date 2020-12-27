@@ -1,10 +1,10 @@
 #include "BasePinRelayActuator.h"
 
 BasePinRelayActuator::BasePinRelayActuator(
-  int posAccuracy,
+  int lenAccuracy,
   int foldedInputVal,
   int unfoldedInputVal,
-  byte posInputPin,
+  byte lenInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
   int minSpeedAlert,
@@ -14,10 +14,10 @@ BasePinRelayActuator::BasePinRelayActuator(
   byte relayMotorPin1,
   byte relayMotorPin2
 ) : BaseActuator(
-  posAccuracy,
+  lenAccuracy,
   foldedInputVal,
   unfoldedInputVal,
-  posInputPin,
+  lenInputPin,
   isTotallyFoldedInputPin,
   isTotallyUnfoldedInputPin,
   minSpeedAlert,

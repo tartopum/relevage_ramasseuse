@@ -3,44 +3,48 @@
 Knob::Knob(
   int foldedInputVal,
   int unfoldedInputVal,
-  byte pin
+  byte pin,
+  int noise
 ) {
   _foldedInputVal = foldedInputVal;
   _unfoldedInputVal = unfoldedInputVal;
+  // float pour les divisions plus bas
+  _inputValScale = abs(_unfoldedInputVal - _foldedInputVal);
   _pin = pin;
+  _noise = noise;
 
   pinMode(_pin, INPUT);
 }
 
+bool Knob::_isFoldedVal(int inputVal) {
+  if (_foldedInputVal < _unfoldedInputVal) {
+    return inputVal <= (_foldedInputVal + _noise);
+  }
+  return inputVal >= (_foldedInputVal - _noise);
+}
+
+bool Knob::_isUnfoldedVal(int inputVal) {
+  if (_foldedInputVal < _unfoldedInputVal) {
+    return inputVal >= (_unfoldedInputVal - _noise);
+  }
+  return inputVal <= (_unfoldedInputVal + _noise);
+}
+
 int Knob::readTargetLen() {
-  /*
-   * Selon les branchements du potentiometre, les valeurs basses du capteur
-   * correspondent a une position repliee ou depliee du verin.
-   */
   const int inputVal = analogRead(_pin);
  
-  // float pour les divisions plus bas
-  float scale = abs(_unfoldedInputVal - _foldedInputVal);
-
-  if (_foldedInputVal < _unfoldedInputVal) {
-    // Les valeurs basses du potentiometre correspondent a un verin replie.
-    if (inputVal <= _foldedInputVal) {
-      return 0;
-    }
-    if (inputVal >= _unfoldedInputVal) {
-      return 1000;
-    }
-    const float distToFolded = inputVal - _foldedInputVal;
-    return distToFolded / scale * 1000;
+  // On ignore le bruit
+  if (_prevInputVal != -1 && abs(_prevInputVal - inputVal) <= _noise) {
+    return NO_TARGET_LEN_CHANGE;
   }
+  _prevInputVal = inputVal;
 
-  // Les valeurs hautes du potentiometre correspondent a un verin replie.
-  if (inputVal >= _foldedInputVal) {
+  if (_isFoldedVal(inputVal)) {
     return 0;
   }
-  if (inputVal <= _unfoldedInputVal) {
-    return 1000;
+  if (_isUnfoldedVal(inputVal)) {
+    return MAX_TARGET_LEN;
   }
-  const float distToUnfolded = inputVal - _unfoldedInputVal;
-  return (1 - distToUnfolded / scale) * 1000;
+  float deltaToFolded = abs(inputVal - _foldedInputVal);
+  return deltaToFolded / _inputValScale * MAX_TARGET_LEN;
 }

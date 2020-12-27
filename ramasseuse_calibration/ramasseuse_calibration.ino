@@ -77,7 +77,7 @@ void calibrateActuator(
       Serial.println("Potentiometre de cabine en position basse, on replie le verin.");
     }
     relay->channelCtrl(foldingRelayState);
-  } else if (targetPos > LOW_THRESH) {
+  } else if (targetPos > HIGH_THRESH) {
     if (print) {
       Serial.println("Potentiometre de cabine en position haute, on deplie le verin.");
     }

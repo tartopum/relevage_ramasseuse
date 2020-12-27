@@ -11,14 +11,20 @@
 #define POTAR_VAL_DEPLIE 0
 #define POTAR_VAL_REPLIE 1023
 #define POTAR_PIN A1
+#define POTAR_BRUIT 2
+
 // Pour eviter les micro-deplacements permanents dus a des micro-variations des
 // capteurs, ce qui abimerait les verins, on definit une marge d'erreur acceptable.
 // On definit cette valeur en pour mille pour avoir des nombres entiers.
 // 5,5% = 55 pour mille
 //
 // Le rouleau des verins a une amplitude verticale de 60mm.
-// On veut une precision de sa position a 2mm, soit 33pm de 60mm.
-#define PRECISION_POSITION_POUR_MILLE 33
+// On veut une precision de sa position a 1mm, soit 33pm de 60mm.
+#define PRECISION_VERIN_POUR_MILLE 16
+// On se premunit contre les petites variations du potentiometre de cabine
+// On a vu pendant la calibration que les valeurs analogRead() du potentiometre
+// de cabine variaient d'au plus 3, ce qui fait 3/1023*1000 = 2.9pm
+#define PRECISION_POTAR_POUR_MILLE 3
 
 // ************
 // Alerte
@@ -27,9 +33,9 @@
 // une certaine valeur.
 // Les vitesses sont celles de deplacemenent du verin (et non de la hauteur du
 // rouleau), en mm/s.
-#define VERIN_G_VITESSE_MIN 1 // mm/s
-#define VERIN_D_VITESSE_MIN 1 // mm/s
-#define VERIN_PERIODE_CHECK 3000 // ms
+#define VERIN_G_VITESSE_MIN 2 // mm/s
+#define VERIN_D_VITESSE_MIN 2 // mm/s
+#define VERIN_PERIODE_CHECK 2000 // ms
 #define BUZZER_PIN_SORTIE 8
 
 // ************
@@ -46,8 +52,8 @@
 
 #define VERIN_G_RELAIS_ADR_I2C 0x11
 #define VERIN_G_ETAT_RELAIS_STOP 0
-#define VERIN_G_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
-#define VERIN_G_ETAT_RELAIS_DEPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
+#define VERIN_G_ETAT_RELAIS_DEPLIER CHANNLE3_BIT | CHANNLE4_BIT
+#define VERIN_G_ETAT_RELAIS_REPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 
 // ************
 // Verin droit
@@ -68,13 +74,13 @@
 
 
 I2CRelayActuator actuatorLeft(
-  PRECISION_POSITION_POUR_MILLE,
+  PRECISION_VERIN_POUR_MILLE,
   VERIN_G_VAL_REPLIE,
   VERIN_G_VAL_DEPLIE,
   VERIN_G_PIN_POS,
   VERIN_G_PIN_FIN_COURSE_REPLIE,
   VERIN_G_PIN_FIN_COURSE_DEPLIE,
-  VERIN_G_VITESSE_MIN / VERIN_G_LONGUEUR_UTILISEE * 1000,
+  (float)VERIN_G_VITESSE_MIN / VERIN_G_LONGUEUR_UTILISEE * 1000,
   VERIN_PERIODE_CHECK,
   VERIN_G_RELAIS_ADR_I2C,
   VERIN_G_ETAT_RELAIS_STOP,
@@ -83,13 +89,13 @@ I2CRelayActuator actuatorLeft(
 );
 
 I2CRelayActuator actuatorRight(
-  PRECISION_POSITION_POUR_MILLE,
+  PRECISION_VERIN_POUR_MILLE,
   VERIN_D_VAL_REPLIE,
   VERIN_D_VAL_DEPLIE,
   VERIN_D_PIN_POS,
   VERIN_D_PIN_FIN_COURSE_REPLIE,
   VERIN_D_PIN_FIN_COURSE_DEPLIE,
-  VERIN_D_VITESSE_MIN / VERIN_D_LONGUEUR_UTILISEE * 1000,
+  (float)VERIN_D_VITESSE_MIN / VERIN_D_LONGUEUR_UTILISEE * 1000,
   VERIN_PERIODE_CHECK,
   VERIN_D_RELAIS_ADR_I2C,
   VERIN_D_ETAT_RELAIS_STOP,
@@ -100,23 +106,32 @@ I2CRelayActuator actuatorRight(
 Knob targetLenKnob(
   POTAR_VAL_REPLIE,
   POTAR_VAL_DEPLIE,
-  POTAR_PIN
+  POTAR_PIN,
+  POTAR_BRUIT
 );
 
-bool alertRaised = false;
-int prevTargetLen;
+int prevTargetLen = -1;
+
+unsigned long lastPrintMillis = 0;
+const int PRINT_PERIOD = 2000;
+
+void serialPrintLn(String m, bool print) {
+  if (print) {
+    Serial.println(m);
+  }
+}
 
 void raiseAlert() {
-  alertRaised = true;
   digitalWrite(BUZZER_PIN_SORTIE, HIGH);
 }
 
 void stopAlert() {
-  alertRaised = false;
   digitalWrite(BUZZER_PIN_SORTIE, LOW);
 }
 
 void setup() {
+  Serial.begin(9600);
+
   actuatorLeft.stop();
   actuatorRight.stop();
 
@@ -134,18 +149,40 @@ void loop() {
   corresponde a deux positions absolues identiques.
   */
 
-  if (!actuatorLeft.check() || !actuatorRight.check()) {
+  // TODO: debug
+  bool print = false;
+  if (lastPrintMillis == 0 || (millis() - lastPrintMillis) > PRINT_PERIOD) {
+    print = true;
+    lastPrintMillis = millis();
+  }
+
+  // TODO right as well
+  if (!actuatorLeft.check()) {
     raiseAlert();
   }
 
   int targetLen = targetLenKnob.readTargetLen();
-  if (abs(targetLen - prevTargetLen) > PRECISION_POSITION_POUR_MILLE) {
+
+  int len = actuatorLeft.readLen();
+  serialPrintLn("Longueur cible = ", print);
+  serialPrintLn(String(actuatorLeft._targetLen), print);
+  serialPrintLn("Longueur verin = ", print);
+  serialPrintLn(String(len), print);
+  serialPrintLn("diff = ", print);
+  serialPrintLn(String(abs(len - actuatorLeft._targetLen)), print);
+  serialPrintLn("", print);
+
+  // On met le potentiometre de cabine en position repliee pour couper l'alarme.
+  if (targetLen == 0) {
+    stopAlert();
+  }
+
+  if (targetLen != NO_TARGET_LEN_CHANGE) {
     // Un humain est intervenu sur le potentiometre de cabine, on arrete l'alerte.
     // On suppose en effet qu'il sait ce qu'il fait et commande les verins pour
     // regler le probleme, si probleme il y a.
-    stopAlert();
     prevTargetLen = targetLen;
     actuatorLeft.startMovingTo(targetLen);
-    actuatorRight.startMovingTo(targetLen);
+    // actuatorRight.startMovingTo(targetLen);
   }
 }

@@ -7,10 +7,10 @@ BaseActuator::BaseActuator(
   byte lenInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
-  int minSpeedAlert,
+  unsigned int minSpeedAlert,
   unsigned int checkPeriod
 ) {
-    _lenAccuracy = lenAccuracy;
+  _lenAccuracy = lenAccuracy;
   _foldedInputVal = foldedInputVal;
   _unfoldedInputVal = unfoldedInputVal;
   _lenInputPin = lenInputPin;
@@ -26,7 +26,7 @@ BaseActuator::BaseActuator(
   pinMode(_isTotallyUnfoldedInputPin, INPUT);
 }
 
-int BaseActuator::_readLen() {
+int BaseActuator::readLen() {
   /*
    * Selon les branchements du potentiometre, les valeurs basses du capteur
    * correspondent a une position repliee ou depliee du verin.
@@ -83,15 +83,19 @@ bool BaseActuator::isTotallyUnfolded() {
 
 bool BaseActuator::_looksBlocked() {
   if (!_moving) {
+    // On met a jour la date de verification, sinon au moment de relancer un
+    // deplacement, la periode de verification sera passee et la vitesse sera
+    // calculee sans moyenne.
+    _lastCheckTime = millis();
     return false;
   }
   if (_lastCheckLen == -1) {
-    _lastCheckLen = _readLen();
+    _lastCheckLen = readLen();
     _lastCheckTime = millis();
     return false;
   }
 
-  int len = _readLen();
+  int len = readLen();
   unsigned long now = millis();
   unsigned long duration = now - _lastCheckTime;
 
@@ -103,11 +107,11 @@ bool BaseActuator::_looksBlocked() {
 
   float movingTime = (float)duration / 1000;
   int speed = abs(len - _lastCheckLen) / movingTime;
-  
+
   _lastCheckLen = len;
   _lastCheckTime = now;
 
-  return speed > _minSpeedAlert;
+  return speed <= _minSpeedAlert;
 }
 
 bool BaseActuator::check() {
@@ -115,10 +119,22 @@ bool BaseActuator::check() {
     stop();
     return false;
   }
-  int lenDelta = _targetLen - _readLen();
+  int len = readLen();
+  int lenDelta = _targetLen - len;
   bool isAtLen = abs(lenDelta) < _lenAccuracy;
   bool cannotStep = (lenDelta < 0 && isTotallyFolded()) || (lenDelta > 0 && isTotallyUnfolded());
   if (isAtLen || cannotStep) {
+    // TODO debug
+    if (_moving) {
+      Serial.println("STOOOOOOOOOOOOOOOOOOOOP");
+      Serial.print("longueur verin = ");
+      Serial.println(len);
+      Serial.print("longueur cible = ");
+      Serial.println(_targetLen);
+      Serial.print("diff = ");
+      Serial.println(lenDelta);
+      Serial.println("");
+    }
     stop();
   }
   return true;
@@ -126,7 +142,7 @@ bool BaseActuator::check() {
 
 void BaseActuator::startMovingTo(int target) {
   _targetLen = target;
-  int lenDelta = _targetLen - _readLen();
+  int lenDelta = _targetLen - readLen();
   bool isAtLen = abs(lenDelta) < _lenAccuracy;
   bool cannotStep = (lenDelta < 0 && isTotallyFolded()) || (lenDelta > 0 && isTotallyUnfolded());
   if (isAtLen || cannotStep) {
