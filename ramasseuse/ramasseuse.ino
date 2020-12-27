@@ -110,8 +110,6 @@ Knob targetLenKnob(
   POTAR_BRUIT
 );
 
-int prevTargetLen = -1;
-
 unsigned long lastPrintMillis = 0;
 const int PRINT_PERIOD = 2000;
 
@@ -156,10 +154,11 @@ void loop() {
     lastPrintMillis = millis();
   }
 
-  bool stopOnError = actuatorLeft.stopIfNecessary();
-  // stopOnError |= actuatorRight.stopIfNecessary();
+  actuator_stop_reason_t stopReasonLeft = actuatorLeft.stopIfNecessary();
+  actuator_stop_reason_t stopReasonRight = NO_STOP; // TODO
+  // actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
 
-  if (stopOnError) {
+  if (stopReasonLeft == STOP_BLOCKED || stopReasonRight == STOP_BLOCKED) {
     raiseAlert();
   }
 
@@ -174,16 +173,12 @@ void loop() {
   serialPrintLn(String(abs(len - actuatorLeft._targetLen)), print);
   serialPrintLn("", print);
 
-  // On met le potentiometre de cabine en position repliee pour couper l'alarme.
+  // Placer le potentiometre de cabine en position repliee coupe l'alarme.
   if (targetLen == 0) {
     stopAlert();
   }
 
   if (targetLen != NO_TARGET_LEN_CHANGE) {
-    // Un humain est intervenu sur le potentiometre de cabine, on arrete l'alerte.
-    // On suppose en effet qu'il sait ce qu'il fait et commande les verins pour
-    // regler le probleme, si probleme il y a.
-    prevTargetLen = targetLen;
     actuatorLeft.startMovingTo(targetLen);
     // actuatorRight.startMovingTo(targetLen);
   }

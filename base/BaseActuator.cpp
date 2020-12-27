@@ -106,7 +106,7 @@ bool BaseActuator::_looksBlocked() {
   }
 
   float movingTime = (float)duration / 1000;
-  int speed = abs(len - _lastCheckLen) / movingTime;
+  unsigned int speed = abs(len - _lastCheckLen) / movingTime;
 
   _lastCheckLen = len;
   _lastCheckTime = now;
@@ -114,31 +114,39 @@ bool BaseActuator::_looksBlocked() {
   return speed <= _minSpeedAlert;
 }
 
-bool BaseActuator::stopIfNecessary() {
+actuator_stop_reason_t BaseActuator::stopIfNecessary() {
   if (_looksBlocked()) {
     stop();
-    return true;
+    return STOP_BLOCKED;
   }
 
-  int len = readLen();
-  int lenDelta = _targetLen - len;
-  bool isAtLen = abs(lenDelta) < _lenAccuracy;
-  bool cannotStep = (lenDelta < 0 && isTotallyFolded()) || (lenDelta > 0 && isTotallyUnfolded());
-  if (isAtLen || cannotStep) {
-    // TODO debug
-    if (_moving) {
-      Serial.println("STOOOOOOOOOOOOOOOOOOOOP");
-      Serial.print("longueur verin = ");
-      Serial.println(len);
-      Serial.print("longueur cible = ");
-      Serial.println(_targetLen);
-      Serial.print("diff = ");
-      Serial.println(lenDelta);
-      Serial.println("");
-    }
+  int lenDelta = _targetLen - readLen();
+  if (abs(lenDelta) < _lenAccuracy) {
     stop();
+    return STOP_AT_POS;
   }
-  return false;
+  if (lenDelta < 0 && isTotallyFolded()) {
+    stop();
+    return STOP_FOLDED;
+  }
+  if (lenDelta > 0 && isTotallyUnfolded()) {
+    stop();
+    return STOP_UNFOLDED;
+  }
+
+  /*
+  if (_moving) {
+    Serial.println("STOOOOOOOOOOOOOOOOOOOOP");
+    Serial.print("longueur verin = ");
+    Serial.println(len);
+    Serial.print("longueur cible = ");
+    Serial.println(_targetLen);
+    Serial.print("diff = ");
+    Serial.println(lenDelta);
+    Serial.println("");
+  }
+  */
+  return NO_STOP;
 }
 
 void BaseActuator::startMovingTo(int target) {

@@ -3,6 +3,14 @@
 
 #include "Arduino.h"
 
+typedef enum {
+  NO_STOP = 0,
+  STOP_AT_POS = 1,
+  STOP_FOLDED = 3,
+  STOP_UNFOLDED = 4,
+  STOP_BLOCKED = 5
+} actuator_stop_reason_t;
+
 class BaseActuator {
   public:
     BaseActuator(
@@ -16,12 +24,12 @@ class BaseActuator {
       unsigned int checkPeriod
     );
 
-    // TODO
+    // TODO debug
     int _targetLen = -1;
 
     void startMovingTo(int target);
     int readLen();
-    bool stopIfNecessary();
+    actuator_stop_reason_t stopIfNecessary();
     void stop();
     bool isFolding();
     bool isUnfolding();
