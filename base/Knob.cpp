@@ -4,7 +4,8 @@ Knob::Knob(
   int foldedInputVal,
   int unfoldedInputVal,
   byte pin,
-  int noise
+  int noise,
+  unsigned long readDelay
 ) {
   _foldedInputVal = foldedInputVal;
   _unfoldedInputVal = unfoldedInputVal;
@@ -12,6 +13,7 @@ Knob::Knob(
   _inputValScale = abs(_unfoldedInputVal - _foldedInputVal);
   _pin = pin;
   _noise = noise;
+  _readDelay = readDelay;
 
   pinMode(_pin, INPUT);
 }
@@ -33,11 +35,26 @@ bool Knob::_isUnfoldedVal(int inputVal) {
 int Knob::readTargetLen() {
   const int inputVal = analogRead(_pin);
  
-  // On ignore le bruit
-  if (_prevInputVal != -1 && abs(_prevInputVal - inputVal) <= _noise) {
+  // On initialise
+  if (_prevInputVal == -1) {
+    _prevInputVal = inputVal;
+  }
+
+  // TODO explication
+  int delta = abs(_prevInputVal - inputVal);
+  bool isTurned = delta > _noise;
+  bool changedALongTimeAgo = (millis() - _lastChangeTime) >= _readDelay;
+
+  if (isTurned) {
+    _lastChangeTime = millis();
+    _prevInputVal = inputVal;
+    _valReturned = false;
+    return NO_TARGET_LEN_CHANGE;
+  } else if (!changedALongTimeAgo || _valReturned) {
     return NO_TARGET_LEN_CHANGE;
   }
-  _prevInputVal = inputVal;
+
+  _valReturned = true;
 
   if (_isFoldedVal(inputVal)) {
     return 0;

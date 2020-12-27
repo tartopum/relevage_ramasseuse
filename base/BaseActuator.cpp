@@ -7,7 +7,7 @@ BaseActuator::BaseActuator(
   byte lenInputPin,
   byte isTotallyFoldedInputPin,
   byte isTotallyUnfoldedInputPin,
-  unsigned int minSpeedAlert,
+  int minSpeedAlert,
   unsigned int checkPeriod
 ) {
   _lenAccuracy = lenAccuracy;
@@ -82,22 +82,23 @@ bool BaseActuator::isTotallyUnfolded() {
 }
 
 bool BaseActuator::_looksBlocked() {
+  int len = readLen();
+  unsigned long now = millis();
+  unsigned long duration = now - _lastCheckTime;
+
   if (!_moving) {
     // On met a jour la date de verification, sinon au moment de relancer un
     // deplacement, la periode de verification sera passee et la vitesse sera
     // calculee sans moyenne.
-    _lastCheckTime = millis();
+    _lastCheckTime = now;
+    _lastCheckLen = len;
     return false;
   }
   if (_lastCheckLen == -1) {
-    _lastCheckLen = readLen();
-    _lastCheckTime = millis();
+    _lastCheckTime = now;
+    _lastCheckLen = len;
     return false;
   }
-
-  int len = readLen();
-  unsigned long now = millis();
-  unsigned long duration = now - _lastCheckTime;
 
   // On attend que le deplacement ait dure un certain temps avant de calculer
   // la vitesse, sinon on est trop soumis aux petits aleas de deplacement.
@@ -106,7 +107,7 @@ bool BaseActuator::_looksBlocked() {
   }
 
   float movingTime = (float)duration / 1000;
-  unsigned int speed = abs(len - _lastCheckLen) / movingTime;
+  int speed = abs(len - _lastCheckLen) / movingTime;
 
   _lastCheckLen = len;
   _lastCheckTime = now;
@@ -134,18 +135,6 @@ actuator_stop_reason_t BaseActuator::stopIfNecessary() {
     return STOP_UNFOLDED;
   }
 
-  /*
-  if (_moving) {
-    Serial.println("STOOOOOOOOOOOOOOOOOOOOP");
-    Serial.print("longueur verin = ");
-    Serial.println(len);
-    Serial.print("longueur cible = ");
-    Serial.println(_targetLen);
-    Serial.print("diff = ");
-    Serial.println(lenDelta);
-    Serial.println("");
-  }
-  */
   return NO_STOP;
 }
 

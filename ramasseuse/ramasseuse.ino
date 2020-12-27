@@ -12,6 +12,7 @@
 #define POTAR_VAL_REPLIE 1023
 #define POTAR_PIN A1
 #define POTAR_BRUIT 2
+#define POTAR_DELAI_LECTURE 1000 // ms
 
 // Pour eviter les micro-deplacements permanents dus a des micro-variations des
 // capteurs, ce qui abimerait les verins, on definit une marge d'erreur acceptable.
@@ -21,10 +22,6 @@
 // Le rouleau des verins a une amplitude verticale de 60mm.
 // On veut une precision de sa position a 1mm, soit 33pm de 60mm.
 #define PRECISION_VERIN_POUR_MILLE 16
-// On se premunit contre les petites variations du potentiometre de cabine
-// On a vu pendant la calibration que les valeurs analogRead() du potentiometre
-// de cabine variaient d'au plus 3, ce qui fait 3/1023*1000 = 2.9pm
-#define PRECISION_POTAR_POUR_MILLE 3
 
 // ************
 // Alerte
@@ -33,9 +30,9 @@
 // une certaine valeur.
 // Les vitesses sont celles de deplacemenent du verin (et non de la hauteur du
 // rouleau), en mm/s.
-#define VERIN_G_VITESSE_MIN 2 // mm/s
-#define VERIN_D_VITESSE_MIN 2 // mm/s
-#define VERIN_PERIODE_CHECK 2000 // ms
+#define VERIN_G_VITESSE_MIN 4 // mm/s
+#define VERIN_D_VITESSE_MIN 4 // mm/s
+#define VERIN_PERIODE_CHECK 1000 // ms
 #define BUZZER_PIN_SORTIE 8
 
 // ************
@@ -69,8 +66,8 @@
 
 #define VERIN_D_RELAIS_ADR_I2C 0x21
 #define VERIN_D_ETAT_RELAIS_STOP 0
-#define VERIN_D_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
-#define VERIN_D_ETAT_RELAIS_DEPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
+#define VERIN_D_ETAT_RELAIS_DEPLIER CHANNLE3_BIT | CHANNLE4_BIT
+#define VERIN_D_ETAT_RELAIS_REPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 
 
 I2CRelayActuator actuatorLeft(
@@ -107,17 +104,19 @@ Knob targetLenKnob(
   POTAR_VAL_REPLIE,
   POTAR_VAL_DEPLIE,
   POTAR_PIN,
-  POTAR_BRUIT
+  POTAR_BRUIT,
+  POTAR_DELAI_LECTURE
 );
 
-unsigned long lastPrintMillis = 0;
-const int PRINT_PERIOD = 2000;
+bool alertRaised = false;
 
 void raiseAlert() {
+  alertRaised = true;
   digitalWrite(BUZZER_PIN_SORTIE, HIGH);
 }
 
 void stopAlert() {
+  alertRaised = false;
   digitalWrite(BUZZER_PIN_SORTIE, LOW);
 }
 
@@ -142,10 +141,11 @@ void loop() {
   */
 
   actuator_stop_reason_t stopReasonLeft = actuatorLeft.stopIfNecessary();
-  actuator_stop_reason_t stopReasonRight = NO_STOP; // TODO
-  // actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
+  actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
 
   if (stopReasonLeft == STOP_BLOCKED || stopReasonRight == STOP_BLOCKED) {
+    actuatorLeft.stop();
+    actuatorRight.stop();
     raiseAlert();
   }
 
@@ -156,8 +156,8 @@ void loop() {
     stopAlert();
   }
 
-  if (targetLen != NO_TARGET_LEN_CHANGE) {
+  if (targetLen != NO_TARGET_LEN_CHANGE && !alertRaised) {
     actuatorLeft.startMovingTo(targetLen);
-    // actuatorRight.startMovingTo(targetLen);
+    actuatorRight.startMovingTo(targetLen);
   }
 }

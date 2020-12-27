@@ -13,7 +13,8 @@ class Knob: public TargetLenReader {
       int foldedInputVal,
       int unfoldedInputVal,
       byte pin,
-      int noise
+      int noise,
+      unsigned long readDelay
     );
 
     int readTargetLen();
@@ -25,6 +26,9 @@ class Knob: public TargetLenReader {
     int _prevInputVal = -1;
     int _noise;
     float _inputValScale;
+    unsigned long _readDelay;
+    unsigned long _lastChangeTime;
+    bool _valReturned = false;
 
     bool _isFoldedVal(int inputVal);
     bool _isUnfoldedVal(int inputVal);

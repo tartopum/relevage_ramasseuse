@@ -20,7 +20,7 @@ class BaseActuator {
       byte lenInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
-      unsigned int minSpeedAlert,
+      int minSpeedAlert,
       unsigned int checkPeriod
     );
 
