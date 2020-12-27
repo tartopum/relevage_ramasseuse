@@ -5,16 +5,17 @@
 #define POTAR_SEUIL_BAS 200
 #define POTAR_SEUIL_HAUT 800
 
-#define VERIN_PIN_POS A3
-#define VERIN_VAL_DEPLIE 515
-#define VERIN_VAL_REPLIE 935
-#define VERIN_POS_MAX_DIFF 4
+#define VERIN_PIN_POS A2
+#define VERIN_VAL_DEPLIE 440
+#define VERIN_VAL_REPLIE 750
+#define VERIN_POS_MAX_DIFF 20
 
-#define VERIN_RELAIS_ADR_I2C 0x21
+#define VERIN_RELAIS_ADR_I2C 0x11
 #define VERIN_ETAT_RELAIS_STOP 0
 #define VERIN_ETAT_RELAIS_DEPLIER CHANNLE3_BIT | CHANNLE4_BIT
 #define VERIN_ETAT_RELAIS_REPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 
+#define VERIFIER_EXTREMES false
 
 Multi_Channel_Relay relay;
 
@@ -43,25 +44,29 @@ void setup() {
 void loop() {
   int pos = analogRead(VERIN_PIN_POS);
 
-  /*
-  if (pos <= VERIN_VAL_DEPLIE || pos >= VERIN_VAL_REPLIE) {
-    relay.channelCtrl(VERIN_ETAT_RELAIS_STOP); 
-  }
-
   int targetVal = analogRead(POTAR_PIN);
-  if (targetVal >= POTAR_SEUIL_BAS && targetVal <= POTAR_SEUIL_HAUT) {
-    relay.channelCtrl(VERIN_ETAT_RELAIS_STOP); 
-  } else if (targetVal < POTAR_SEUIL_BAS && pos > VERIN_VAL_DEPLIE) {
-    relay.channelCtrl(VERIN_ETAT_RELAIS_DEPLIER);
-  } else if (targetVal > POTAR_SEUIL_HAUT && pos < VERIN_VAL_REPLIE) {
-    relay.channelCtrl(VERIN_ETAT_RELAIS_REPLIER);
-  }
-  */
+  bool mustFold = targetVal > POTAR_SEUIL_HAUT;
+  bool mustUnfold = targetVal < POTAR_SEUIL_BAS;
 
-  // debug(String(pos));
+  if (mustFold) {
+    if (VERIFIER_EXTREMES && pos >= VERIN_VAL_REPLIE) {
+      relay.channelCtrl(VERIN_ETAT_RELAIS_STOP);
+    } else {
+      relay.channelCtrl(VERIN_ETAT_RELAIS_REPLIER);
+    }
+  } else if (mustUnfold) {
+    if (VERIFIER_EXTREMES && pos <= VERIN_VAL_DEPLIE) {
+      relay.channelCtrl(VERIN_ETAT_RELAIS_STOP);
+    } else {
+      relay.channelCtrl(VERIN_ETAT_RELAIS_DEPLIER);
+    }
+  } else {
+    relay.channelCtrl(VERIN_ETAT_RELAIS_STOP);
+  }
+
+  debug(String(pos));
 
   int diff = abs(pos - prevPos);
-  Serial.println(diff);
   if (prevPos != -1 && diff > VERIN_POS_MAX_DIFF) {
     Serial.println("");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");

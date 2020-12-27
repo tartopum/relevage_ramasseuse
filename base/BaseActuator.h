@@ -24,9 +24,6 @@ class BaseActuator {
       unsigned int checkPeriod
     );
 
-    // TODO debug
-    int _targetLen = -1;
-
     void startMovingTo(int target);
     int readLen();
     actuator_stop_reason_t stopIfNecessary();
@@ -49,6 +46,8 @@ class BaseActuator {
 
     // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
     int _lenAccuracy;
+
+    int _targetLen = -1;
  
     // Les valeurs de analogRead() du capteur de position aux positions extremes
     int _foldedInputVal;

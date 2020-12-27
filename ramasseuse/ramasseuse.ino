@@ -113,12 +113,6 @@ Knob targetLenKnob(
 unsigned long lastPrintMillis = 0;
 const int PRINT_PERIOD = 2000;
 
-void serialPrintLn(String m, bool print) {
-  if (print) {
-    Serial.println(m);
-  }
-}
-
 void raiseAlert() {
   digitalWrite(BUZZER_PIN_SORTIE, HIGH);
 }
@@ -147,13 +141,6 @@ void loop() {
   corresponde a deux positions absolues identiques.
   */
 
-  // TODO: debug
-  bool print = false;
-  if (lastPrintMillis == 0 || (millis() - lastPrintMillis) > PRINT_PERIOD) {
-    print = true;
-    lastPrintMillis = millis();
-  }
-
   actuator_stop_reason_t stopReasonLeft = actuatorLeft.stopIfNecessary();
   actuator_stop_reason_t stopReasonRight = NO_STOP; // TODO
   // actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
@@ -163,15 +150,6 @@ void loop() {
   }
 
   int targetLen = targetLenKnob.readTargetLen();
-
-  int len = actuatorLeft.readLen();
-  serialPrintLn("Longueur cible = ", print);
-  serialPrintLn(String(actuatorLeft._targetLen), print);
-  serialPrintLn("Longueur verin = ", print);
-  serialPrintLn(String(len), print);
-  serialPrintLn("diff = ", print);
-  serialPrintLn(String(abs(len - actuatorLeft._targetLen)), print);
-  serialPrintLn("", print);
 
   // Placer le potentiometre de cabine en position repliee coupe l'alarme.
   if (targetLen == 0) {
