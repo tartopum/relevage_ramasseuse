@@ -4,15 +4,14 @@ Knob::Knob(
   int foldedInputVal,
   int unfoldedInputVal,
   byte pin,
-  int noise,
+  int inputValMaxNoise,
   unsigned long readDelay
 ) {
   _foldedInputVal = foldedInputVal;
   _unfoldedInputVal = unfoldedInputVal;
-  // float pour les divisions plus bas
   _inputValScale = abs(_unfoldedInputVal - _foldedInputVal);
   _pin = pin;
-  _noise = noise;
+  _inputValMaxNoise = inputValMaxNoise;
   _readDelay = readDelay;
 
   pinMode(_pin, INPUT);
@@ -20,16 +19,16 @@ Knob::Knob(
 
 bool Knob::_isFoldedVal(int inputVal) {
   if (_foldedInputVal < _unfoldedInputVal) {
-    return inputVal <= (_foldedInputVal + _noise);
+    return inputVal <= (_foldedInputVal + _inputValMaxNoise);
   }
-  return inputVal >= (_foldedInputVal - _noise);
+  return inputVal >= (_foldedInputVal - _inputValMaxNoise);
 }
 
 bool Knob::_isUnfoldedVal(int inputVal) {
   if (_foldedInputVal < _unfoldedInputVal) {
-    return inputVal >= (_unfoldedInputVal - _noise);
+    return inputVal >= (_unfoldedInputVal - _inputValMaxNoise);
   }
-  return inputVal <= (_unfoldedInputVal + _noise);
+  return inputVal <= (_unfoldedInputVal + _inputValMaxNoise);
 }
 
 int Knob::readTargetLen() {
@@ -40,9 +39,42 @@ int Knob::readTargetLen() {
     _prevInputVal = inputVal;
   }
 
-  // TODO explication
+  // Si la valeur n'a pas change en dehors du bruit, on retourne NO_TARGET_LEN_CHANGE
+  // Quand la valeur change significativement, on enregistre le moment du dernier
+  // changement et ne retourne la nouvelle valeur qu'au bout de _readDelay.
+  // Ainsi, quand l'usager tourne le potentiometre on ne retourne pas une nouvelle
+  // valeur toutes les ~100ms mais on attend qu'il ait arrete le potentiometre.
+  // Cela permet d'eviter les multiples micro-deplacements de ce genre, quand
+  // on tourne lentement le potentiometre de 50 a 60 :
+  //
+  // * Longueur = 50
+  // * Longueur cible = 53
+  // * Demarrage du verin
+  // * Longueur = 53
+  // * Arret du verin
+  // * Longueur cible = 56
+  // * Demarrage du verin
+  // * Longueur = 56
+  // * Arret du verin
+  // * Longueur cible = 60
+  // * Demarrage du verin
+  // * Longueur = 60
+  // * Arret du verin
+  //
+  // Avec le delai, on a :
+  //
+  // * Longueur = 50
+  // * Longueur cible = 53
+  // * Attente de _readDelay
+  // * Longueur cible = 56
+  // * Attente de _readDelay
+  // * Longueur cible = 60
+  // * Attente de _readDelay
+  // * Demarrage du verin
+  // * Longueur = 60
+  // * Arret du verin
   int delta = abs(_prevInputVal - inputVal);
-  bool isTurned = delta > _noise;
+  bool isTurned = delta > _inputValMaxNoise;
   bool changedALongTimeAgo = (millis() - _lastChangeTime) >= _readDelay;
 
   if (isTurned) {

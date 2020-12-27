@@ -131,15 +131,6 @@ void setup() {
 }
 
 void loop() {
-  /*
-  Travailler avec des positions relatives au niveau du potentiometre permet de
-  rester dans le domaine des tensions et de ne pas avoir a faire des conversions
-  en distance.
-  Cela suppose que la position cible relative est la meme pour les deux verins,
-  et donc qu'ils sont de la meme longueur si on veut qu'une meme position relative
-  corresponde a deux positions absolues identiques.
-  */
-
   actuator_stop_reason_t stopReasonLeft = actuatorLeft.stopIfNecessary();
   actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
 
