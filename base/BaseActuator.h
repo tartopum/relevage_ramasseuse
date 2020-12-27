@@ -21,7 +21,7 @@ class BaseActuator {
 
     void startMovingTo(int target);
     int readLen();
-    bool check();
+    bool stopIfNecessary();
     void stop();
     bool isFolding();
     bool isUnfolding();

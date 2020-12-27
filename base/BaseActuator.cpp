@@ -114,11 +114,12 @@ bool BaseActuator::_looksBlocked() {
   return speed <= _minSpeedAlert;
 }
 
-bool BaseActuator::check() {
-  if(_looksBlocked()) {
+bool BaseActuator::stopIfNecessary() {
+  if (_looksBlocked()) {
     stop();
-    return false;
+    return true;
   }
+
   int len = readLen();
   int lenDelta = _targetLen - len;
   bool isAtLen = abs(lenDelta) < _lenAccuracy;
@@ -137,7 +138,7 @@ bool BaseActuator::check() {
     }
     stop();
   }
-  return true;
+  return false;
 }
 
 void BaseActuator::startMovingTo(int target) {

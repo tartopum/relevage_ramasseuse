@@ -156,8 +156,10 @@ void loop() {
     lastPrintMillis = millis();
   }
 
-  // TODO right as well
-  if (!actuatorLeft.check()) {
+  bool stopOnError = actuatorLeft.stopIfNecessary();
+  // stopOnError |= actuatorRight.stopIfNecessary();
+
+  if (stopOnError) {
     raiseAlert();
   }
 
