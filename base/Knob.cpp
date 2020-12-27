@@ -18,6 +18,10 @@ Knob::Knob(
 }
 
 bool Knob::_isFoldedVal(int inputVal) {
+  // La position extreme replie peut etre utilisee comme commande speciale (par
+  // exemple pour desactiver une alarme), donc on s'assure qu'on retourne bien 0
+  // quand le capteur est en position extreme (et non une valeur un peu superieure
+  // due a du bruit).
   if (_foldedInputVal < _unfoldedInputVal) {
     return inputVal <= (_foldedInputVal + _inputValMaxNoise);
   }
@@ -25,6 +29,9 @@ bool Knob::_isFoldedVal(int inputVal) {
 }
 
 bool Knob::_isUnfoldedVal(int inputVal) {
+  // La position extreme deplie peut etre utilisee comme commande speciale, donc
+  // on s'assure qu'on retourne bien 1000 quand le capteur est en position extreme
+  // (et non une valeur un peu inferieure due a du bruit).
   if (_foldedInputVal < _unfoldedInputVal) {
     return inputVal >= (_unfoldedInputVal - _inputValMaxNoise);
   }

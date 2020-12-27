@@ -8,20 +8,11 @@
 // ************
 // Potar de cabine
 // ************
+#define POTAR_PIN A1
 #define POTAR_VAL_DEPLIE 0
 #define POTAR_VAL_REPLIE 1023
-#define POTAR_PIN A1
-#define POTAR_BRUIT 2
+#define POTAR_VAL_BRUIT 2
 #define POTAR_DELAI_LECTURE 1000 // ms
-
-// Pour eviter les micro-deplacements permanents dus a des micro-variations des
-// capteurs, ce qui abimerait les verins, on definit une marge d'erreur acceptable.
-// On definit cette valeur en pour mille pour avoir des nombres entiers.
-// 5,5% = 55 pour mille
-//
-// Le rouleau des verins a une amplitude verticale de 60mm.
-// On veut une precision de sa position a 1mm, soit 33pm de 60mm.
-#define PRECISION_VERIN_POUR_MILLE 16
 
 // ************
 // Alerte
@@ -69,9 +60,13 @@
 #define VERIN_D_ETAT_RELAIS_DEPLIER CHANNLE3_BIT | CHANNLE4_BIT
 #define VERIN_D_ETAT_RELAIS_REPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 
+// Le rouleau des verins a une amplitude verticale d'environ 60mm.
+// On veut une precision de sa longueur a 1mm, soit 16pm de 60mm.
+#define VERIN_PRECISION_LONGUEUR 16 // pm
+
 
 I2CRelayActuator actuatorLeft(
-  PRECISION_VERIN_POUR_MILLE,
+  VERIN_PRECISION_LONGUEUR,
   VERIN_G_VAL_REPLIE,
   VERIN_G_VAL_DEPLIE,
   VERIN_G_PIN_POS,
@@ -86,7 +81,7 @@ I2CRelayActuator actuatorLeft(
 );
 
 I2CRelayActuator actuatorRight(
-  PRECISION_VERIN_POUR_MILLE,
+  VERIN_PRECISION_LONGUEUR,
   VERIN_D_VAL_REPLIE,
   VERIN_D_VAL_DEPLIE,
   VERIN_D_PIN_POS,
@@ -104,7 +99,7 @@ Knob targetLenKnob(
   POTAR_VAL_REPLIE,
   POTAR_VAL_DEPLIE,
   POTAR_PIN,
-  POTAR_BRUIT,
+  POTAR_VAL_BRUIT,
   POTAR_DELAI_LECTURE
 );
 
@@ -121,19 +116,23 @@ void stopAlert() {
 }
 
 void setup() {
-  Serial.begin(9600);
-
   actuatorLeft.stop();
   actuatorRight.stop();
 
   pinMode(BUZZER_PIN_SORTIE, OUTPUT);
+
   stopAlert();
 }
 
 void loop() {
+  // Tout d'abord, on arrete les verins au besoin (cible atteinte, fin de course
+  // ou blocage).
   actuator_stop_reason_t stopReasonLeft = actuatorLeft.stopIfNecessary();
   actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
 
+  // Si un verin est bloque (probablement parce que quelque chose est coince dessous),
+  // on arrete les deux verins et lance une alerte pour que l'usager puisse
+  // regler le probleme.
   if (stopReasonLeft == STOP_BLOCKED || stopReasonRight == STOP_BLOCKED) {
     actuatorLeft.stop();
     actuatorRight.stop();
@@ -142,11 +141,25 @@ void loop() {
 
   int targetLen = targetLenKnob.readTargetLen();
 
-  // Placer le potentiometre de cabine en position repliee coupe l'alarme.
+  // Pour arreter l'alarme, l'usager place le potentiometre de cabine en position
+  // replie, de sorte a liberer ce qui est coince sous le verin.
+  // Pour que cette instruction fonctionne, il faut que le potentiometre de
+  // cabine retourne bien 0 quand il est en position extreme replie, et non pas
+  // une petite valeur positive due a une imprecision.
   if (targetLen == 0) {
     stopAlert();
   }
 
+  // Si la longueur cible a change, on indique aux verins de lancer le deplacement
+  // vers la nouvelle cible. Une fois sa cible atteinte, le verin s'arrete et
+  // attend une nouvelle position cible.
+  //
+  // Comme la longueur cible n'est retournee qu'une seule fois par targetLenKnob
+  // (le reste du temps, il retourne NO_TARGET_LEN_CHANGE), le verin ne cherchera
+  // pas en boucle a atteindre la meme position cible. Cela implique que s'il s'est
+  // arrete a cote de sa cible parce que son capteur de position a retourne une
+  // valeur invalide, il ne corrigera pas sa position de lui-meme. L'usager devra
+  // changer de position cible pour que le verin se deplace de nouveau.
   if (targetLen != NO_TARGET_LEN_CHANGE && !alertRaised) {
     actuatorLeft.startMovingTo(targetLen);
     actuatorRight.startMovingTo(targetLen);
