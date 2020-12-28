@@ -8,7 +8,8 @@ typedef enum {
   STOP_AT_POS = 1,
   STOP_FOLDED = 3,
   STOP_UNFOLDED = 4,
-  STOP_BLOCKED = 5
+  STOP_BLOCKED = 5,
+  STOP_TOO_SLOW = 6
 } actuator_stop_reason_t;
 
 class BaseActuator {
@@ -19,7 +20,9 @@ class BaseActuator {
       int unfoldedInputVal,
       byte lenInputPin,
       byte isTotallyFoldedInputPin,
-      byte isTotallyUnfoldedInputPin
+      byte isTotallyUnfoldedInputPin,
+      int minSpeedAlert,
+      unsigned int minSpeedCheckPeriod
     );
 
     void startMovingTo(int target);
@@ -57,7 +60,14 @@ class BaseActuator {
     bool _moving = false;
     bool _folding = false;
 
-    int _computeLenDelta();
+    // Pour detecter un dysfonctionnement du verin, on s'assure que sa vitesse
+    // de deplacement n'est pas inferieure a une certaine valeur.
+    int _lastMinSpeedCheckLen = -1;
+    unsigned long _lastMinSpeedCheckTime = 0;
+    int _minSpeedAlert = 0;  // En pour-mille/s
+    unsigned int _minSpeedCheckPeriod = 3000;
+
+    bool _isTooSlow();
     virtual bool _looksBlocked() = 0;
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;

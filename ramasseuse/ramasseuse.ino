@@ -8,7 +8,7 @@
 // ************
 // Potar de cabine
 // ************
-#define POTAR_PIN A1
+#define POTAR_PIN A2
 #define POTAR_VAL_DEPLIE 0
 #define POTAR_VAL_REPLIE 1023
 #define POTAR_VAL_BRUIT 2
@@ -23,7 +23,7 @@
 // rouleau), en mm/s.
 #define VERIN_G_VITESSE_MIN 4 // mm/s
 #define VERIN_D_VITESSE_MIN 4 // mm/s
-#define VERIN_PERIODE_CHECK 1000 // ms
+#define VERIN_VITESSE_MIN_PERIODE_CHECK 1000 // ms
 #define BUZZER_PIN_SORTIE 8
 
 // ************
@@ -31,11 +31,11 @@
 // ************
 #define VERIN_G_LONGUEUR_UTILISEE 90 // mm
 
-#define VERIN_G_PIN_POS A2
-#define VERIN_G_VAL_DEPLIE 432
-#define VERIN_G_VAL_REPLIE 871
+#define VERIN_G_PIN_POS A4
+#define VERIN_G_VAL_DEPLIE 657
+#define VERIN_G_VAL_REPLIE 900
 
-#define VERIN_G_PIN_COURANT 0
+#define VERIN_G_PIN_COURANT A1
 #define VERIN_G_VAL_MAX_COURANT 0
 
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
@@ -52,10 +52,10 @@
 #define VERIN_D_LONGUEUR_UTILISEE 90 // mm
 
 #define VERIN_D_PIN_POS A3
-#define VERIN_D_VAL_DEPLIE 515
-#define VERIN_D_VAL_REPLIE 935
+#define VERIN_D_VAL_DEPLIE 530
+#define VERIN_D_VAL_REPLIE 930
 
-#define VERIN_D_PIN_COURANT 0
+#define VERIN_D_PIN_COURANT A0
 #define VERIN_D_VAL_MAX_COURANT 0
 
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
@@ -80,6 +80,8 @@ class Actuator : public I2CRelayActuator {
       byte posInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
+      int minSpeedAlert,
+      unsigned int minSpeedCheckPeriod,
       int relayI2CAddr,
       uint8_t stopRelayState,
       uint8_t foldingRelayState,
@@ -93,6 +95,8 @@ class Actuator : public I2CRelayActuator {
       posInputPin,
       isTotallyFoldedInputPin,
       isTotallyUnfoldedInputPin,
+      minSpeedAlert,
+      minSpeedCheckPeriod,
       relayI2CAddr,
       stopRelayState,
       foldingRelayState,
@@ -100,6 +104,8 @@ class Actuator : public I2CRelayActuator {
     ) {
       _currentPin = currentPin;
       _maxCurrentVal = maxCurrentVal;
+
+      pinMode(_currentPin, INPUT);
     };
 
   protected:
@@ -107,7 +113,9 @@ class Actuator : public I2CRelayActuator {
     int _maxCurrentVal;
 
     bool _looksBlocked() {
-      return analogRead(_currentPin) < _maxCurrentVal;
+      // Serial.println(analogRead(_currentPin));
+      return false; // TODO
+      // return analogRead(_currentPin) < _maxCurrentVal;
     };
 };
 
@@ -118,6 +126,8 @@ Actuator actuatorLeft(
   VERIN_G_PIN_POS,
   VERIN_G_PIN_FIN_COURSE_REPLIE,
   VERIN_G_PIN_FIN_COURSE_DEPLIE,
+  (float)VERIN_G_VITESSE_MIN / VERIN_G_LONGUEUR_UTILISEE * 1000,
+  VERIN_VITESSE_MIN_PERIODE_CHECK,
   VERIN_G_RELAIS_ADR_I2C,
   VERIN_G_ETAT_RELAIS_STOP,
   VERIN_G_ETAT_RELAIS_REPLIER,
@@ -133,6 +143,8 @@ Actuator actuatorRight(
   VERIN_D_PIN_POS,
   VERIN_D_PIN_FIN_COURSE_REPLIE,
   VERIN_D_PIN_FIN_COURSE_DEPLIE,
+  (float)VERIN_D_VITESSE_MIN / VERIN_D_LONGUEUR_UTILISEE * 1000,
+  VERIN_VITESSE_MIN_PERIODE_CHECK,
   VERIN_D_RELAIS_ADR_I2C,
   VERIN_D_ETAT_RELAIS_STOP,
   VERIN_D_ETAT_RELAIS_REPLIER,
@@ -162,6 +174,8 @@ void stopAlert() {
 }
 
 void setup() {
+  Serial.begin(9600);
+
   actuatorLeft.stop();
   actuatorRight.stop();
 
@@ -176,10 +190,13 @@ void loop() {
   actuator_stop_reason_t stopReasonLeft = actuatorLeft.stopIfNecessary();
   actuator_stop_reason_t stopReasonRight = actuatorRight.stopIfNecessary();
 
+  bool problemLeft = (stopReasonLeft == STOP_BLOCKED) || (stopReasonLeft == STOP_TOO_SLOW);
+  bool problemRight = (stopReasonRight == STOP_BLOCKED) || (stopReasonRight == STOP_TOO_SLOW);
+
   // Si un verin est bloque (probablement parce que quelque chose est coince dessous),
   // on arrete les deux verins et lance une alerte pour que l'usager puisse
   // regler le probleme.
-  if (stopReasonLeft == STOP_BLOCKED || stopReasonRight == STOP_BLOCKED) {
+  if (problemLeft || problemRight) {
     actuatorLeft.stop();
     actuatorRight.stop();
     raiseAlert();

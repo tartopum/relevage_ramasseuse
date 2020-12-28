@@ -14,6 +14,8 @@ class I2CRelayActuator: public BaseActuator {
       byte posInputPin,
       byte isTotallyFoldedInputPin,
       byte isTotallyUnfoldedInputPin,
+      int minSpeedAlert,
+      unsigned int minSpeedCheckPeriod,
       int relayI2CAddr,
       uint8_t stopRelayState,
       uint8_t foldingRelayState,
