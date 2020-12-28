@@ -23,7 +23,7 @@
 // rouleau), en mm/s.
 #define VERIN_G_VITESSE_MIN 2 // mm/s
 #define VERIN_D_VITESSE_MIN 2 // mm/s
-#define VERIN_VITESSE_MIN_PERIODE_CHECK 1000 // ms
+#define VERIN_VITESSE_MIN_PERIODE_CHECK 2000 // ms
 #define BUZZER_PIN_SORTIE 8
 
 // ************
@@ -111,23 +111,30 @@ class Actuator : public I2CRelayActuator {
   protected:
     byte _currentPin;
     int _maxCurrentVal;
-    int _nAboveMax = 0;
-    const int N_ABOVE_ALERT = 3;
+    // On leve une alerte quand on a plusieurs valeurs au-dessus du maximum
+    // pour ignorer les pointes au demarrage des moteurs.
+    // Ne doit pas etre trop petit, sinon la hausse de courant due a un demarrage
+    // du moteur n'a pas eu le temps de redescendre avant l'alerte.
+    unsigned int _maxTimeAbove = 200;
+    unsigned long _lastTimeBelow;
 
     bool _looksBlocked() {
       if (!_moving || _targetLen == 0) {
-        _nAboveMax = 0;
+        _lastTimeBelow = millis();
         return false;
       }
 
-      // On leve une alerte quand on a plusieurs valeurs au-dessus du maximum
-      // pour ignorer les pointes au demarrage des moteurs.
       int current = analogRead(_currentPin);
-      if (current >= _maxCurrentVal) {
-        _nAboveMax++;
-      }
-      if (_nAboveMax >= N_ABOVE_ALERT) {
-        _nAboveMax = 0;
+      if (current < _maxCurrentVal) {
+        _lastTimeBelow = millis();
+      } else if (millis() - _lastTimeBelow > _maxTimeAbove) {
+        /*
+        Serial.print("[DEBUG] Courant trop important ! ");
+        Serial.print(current);
+        Serial.print(" >= ");
+        Serial.println(_maxCurrentVal);
+        Serial.println("");
+        */
         return true;
       }
       return false;
@@ -189,6 +196,8 @@ void stopAlert() {
 }
 
 void setup() {
+  Serial.begin(9600);
+
   actuatorLeft.stop();
   actuatorRight.stop();
 
@@ -210,6 +219,11 @@ void loop() {
   // on arrete les deux verins et lance une alerte pour que l'usager puisse
   // regler le probleme.
   if (problemLeft || problemRight) {
+    Serial.print("[DEBUG] Raison de l'arret a gauche = ");
+    Serial.println(stopReasonLeft);
+    Serial.print("[DEBUG] Raison de l'arret a droite = ");
+    Serial.println(stopReasonRight);
+    Serial.println("");
     actuatorLeft.stop();
     actuatorRight.stop();
     raiseAlert();
