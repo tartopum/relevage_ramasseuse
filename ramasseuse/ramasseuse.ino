@@ -236,7 +236,7 @@ void loop() {
   // Pour que cette instruction fonctionne, il faut que le potentiometre de
   // cabine retourne bien 0 quand il est en position extreme replie, et non pas
   // une petite valeur positive due a une imprecision.
-  if (targetLen == 0) {
+  if (targetLen == 0 || targetLen == 1000) {
     stopAlert();
   }
 
