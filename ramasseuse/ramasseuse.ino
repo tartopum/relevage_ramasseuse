@@ -35,6 +35,9 @@
 #define VERIN_G_VAL_DEPLIE 432
 #define VERIN_G_VAL_REPLIE 871
 
+#define VERIN_G_PIN_COURANT 0
+#define VERIN_G_VAL_MAX_COURANT 0
+
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_G_PIN_FIN_COURSE_DEPLIE 0
 
@@ -51,6 +54,9 @@
 #define VERIN_D_PIN_POS A3
 #define VERIN_D_VAL_DEPLIE 515
 #define VERIN_D_VAL_REPLIE 935
+
+#define VERIN_D_PIN_COURANT 0
+#define VERIN_D_VAL_MAX_COURANT 0
 
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_D_PIN_FIN_COURSE_DEPLIE 0
@@ -78,8 +84,8 @@ class Actuator : public I2CRelayActuator {
       uint8_t stopRelayState,
       uint8_t foldingRelayState,
       uint8_t unfoldingRelayState,
-      int minSpeedAlert,
-      unsigned checkPeriod
+      byte currentPin,
+      int maxCurrentVal
     ) : I2CRelayActuator(
       posAccuracy,
       foldedInputVal,
@@ -92,50 +98,16 @@ class Actuator : public I2CRelayActuator {
       foldingRelayState,
       unfoldingRelayState
     ) {
-      _minSpeedAlert = minSpeedAlert;
-      _checkPeriod = checkPeriod;
+      _currentPin = currentPin;
+      _maxCurrentVal = maxCurrentVal;
     };
 
   protected:
-    // Pour detecter un blocage du verin, on s'assure que sa vitesse de deplacement
-    // n'est pas inferieure a une certaine valeur.
-    int _lastCheckLen = -1;
-    unsigned long _lastCheckTime = 0;
-    int _minSpeedAlert = 0;  // En pour-mille/s
-    unsigned int _checkPeriod = 3000;
+    byte _currentPin;
+    int _maxCurrentVal;
 
     bool _looksBlocked() {
-      int len = readLen();
-      unsigned long now = millis();
-      unsigned long duration = now - _lastCheckTime;
-
-      if (!_moving) {
-        // On met a jour la date de verification, sinon au moment de relancer un
-        // deplacement, la periode de verification sera passee et la vitesse sera
-        // calculee sans moyenne.
-        _lastCheckTime = now;
-        _lastCheckLen = len;
-        return false;
-      }
-      if (_lastCheckLen == -1) {
-        _lastCheckTime = now;
-        _lastCheckLen = len;
-        return false;
-      }
-
-      // On attend que le deplacement ait dure un certain temps avant de calculer
-      // la vitesse, sinon on est trop soumis aux petits aleas de deplacement.
-      if (duration < _checkPeriod) {
-        return false;
-      }
-
-      float movingTime = (float)duration / 1000;
-      int speed = abs(len - _lastCheckLen) / movingTime;
-
-      _lastCheckLen = len;
-      _lastCheckTime = now;
-
-      return speed <= _minSpeedAlert;
+      return analogRead(_currentPin) < _maxCurrentVal;
     };
 };
 
@@ -150,8 +122,8 @@ Actuator actuatorLeft(
   VERIN_G_ETAT_RELAIS_STOP,
   VERIN_G_ETAT_RELAIS_REPLIER,
   VERIN_G_ETAT_RELAIS_DEPLIER,
-  (float)VERIN_G_VITESSE_MIN / VERIN_G_LONGUEUR_UTILISEE * 1000,
-  VERIN_PERIODE_CHECK
+  VERIN_G_PIN_COURANT,
+  VERIN_G_VAL_MAX_COURANT
 );
 
 Actuator actuatorRight(
@@ -165,8 +137,8 @@ Actuator actuatorRight(
   VERIN_D_ETAT_RELAIS_STOP,
   VERIN_D_ETAT_RELAIS_REPLIER,
   VERIN_D_ETAT_RELAIS_DEPLIER,
-  (float)VERIN_D_VITESSE_MIN / VERIN_D_LONGUEUR_UTILISEE * 1000,
-  VERIN_PERIODE_CHECK
+  VERIN_D_PIN_COURANT,
+  VERIN_D_VAL_MAX_COURANT
 );
 
 Knob targetLenKnob(
