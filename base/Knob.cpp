@@ -44,6 +44,8 @@ int Knob::readTargetLen() {
   // On initialise
   if (_prevInputVal == -1) {
     _prevInputVal = inputVal;
+    _lastChangeTime = millis();
+    return NO_TARGET_LEN_CHANGE;
   }
 
   // Si la valeur n'a pas change en dehors du bruit, on retourne NO_TARGET_LEN_CHANGE

@@ -65,7 +65,7 @@ class BaseActuator {
     int _lastMinSpeedCheckLen = -1;
     unsigned long _lastMinSpeedCheckTime = 0;
     int _minSpeedAlert = 0;  // En pour-mille/s
-    unsigned int _minSpeedCheckPeriod = 3000;
+    unsigned int _minSpeedCheckPeriod = 1000;
 
     bool _isTooSlow();
     virtual bool _looksBlocked() = 0;

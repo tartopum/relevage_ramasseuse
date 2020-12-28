@@ -127,7 +127,7 @@ actuator_stop_reason_t BaseActuator::stopIfNecessary() {
   }
 
   int lenDelta = _targetLen - readLen();
-  if (abs(lenDelta) < _lenAccuracy) {
+  if (abs(lenDelta) <= _lenAccuracy) {
     stop();
     return STOP_AT_POS;
   }

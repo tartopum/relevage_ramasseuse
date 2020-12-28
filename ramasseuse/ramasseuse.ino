@@ -11,7 +11,7 @@
 #define POTAR_PIN A2
 #define POTAR_VAL_DEPLIE 0
 #define POTAR_VAL_REPLIE 1023
-#define POTAR_VAL_BRUIT 2
+#define POTAR_VAL_BRUIT 10
 #define POTAR_DELAI_LECTURE 800 // ms
 
 // ************
@@ -21,8 +21,8 @@
 // une certaine valeur.
 // Les vitesses sont celles de deplacemenent du verin (et non de la hauteur du
 // rouleau), en mm/s.
-#define VERIN_G_VITESSE_MIN 4 // mm/s
-#define VERIN_D_VITESSE_MIN 4 // mm/s
+#define VERIN_G_VITESSE_MIN 2 // mm/s
+#define VERIN_D_VITESSE_MIN 2 // mm/s
 #define VERIN_VITESSE_MIN_PERIODE_CHECK 1000 // ms
 #define BUZZER_PIN_SORTIE 8
 
@@ -36,7 +36,7 @@
 #define VERIN_G_VAL_REPLIE 900
 
 #define VERIN_G_PIN_COURANT A1
-#define VERIN_G_VAL_MAX_COURANT 0
+#define VERIN_G_VAL_MAX_COURANT 460
 
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_G_PIN_FIN_COURSE_DEPLIE 0
@@ -56,7 +56,7 @@
 #define VERIN_D_VAL_REPLIE 930
 
 #define VERIN_D_PIN_COURANT A0
-#define VERIN_D_VAL_MAX_COURANT 0
+#define VERIN_D_VAL_MAX_COURANT 460
 
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
 #define VERIN_D_PIN_FIN_COURSE_DEPLIE 0
@@ -111,11 +111,26 @@ class Actuator : public I2CRelayActuator {
   protected:
     byte _currentPin;
     int _maxCurrentVal;
+    int _nAboveMax = 0;
+    const int N_ABOVE_ALERT = 3;
 
     bool _looksBlocked() {
-      // Serial.println(analogRead(_currentPin));
-      return false; // TODO
-      // return analogRead(_currentPin) < _maxCurrentVal;
+      if (!_moving || _targetLen == 0) {
+        _nAboveMax = 0;
+        return false;
+      }
+
+      // On leve une alerte quand on a plusieurs valeurs au-dessus du maximum
+      // pour ignorer les pointes au demarrage des moteurs.
+      int current = analogRead(_currentPin);
+      if (current >= _maxCurrentVal) {
+        _nAboveMax++;
+      }
+      if (_nAboveMax >= N_ABOVE_ALERT) {
+        _nAboveMax = 0;
+        return true;
+      }
+      return false;
     };
 };
 
@@ -174,8 +189,6 @@ void stopAlert() {
 }
 
 void setup() {
-  Serial.begin(9600);
-
   actuatorLeft.stop();
   actuatorRight.stop();
 
