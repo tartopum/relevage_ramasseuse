@@ -19,9 +19,7 @@ class BaseActuator {
       int unfoldedInputVal,
       byte lenInputPin,
       byte isTotallyFoldedInputPin,
-      byte isTotallyUnfoldedInputPin,
-      int minSpeedAlert,
-      unsigned int checkPeriod
+      byte isTotallyUnfoldedInputPin
     );
 
     void startMovingTo(int target);
@@ -59,15 +57,8 @@ class BaseActuator {
     bool _moving = false;
     bool _folding = false;
 
-    // Pour detecter un blocage du verin, on s'assure que sa vitesse de deplacement
-    // n'est pas inferieure a une certaine valeur.
-    int _lastCheckLen = -1;
-    unsigned long _lastCheckTime = 0;
-    unsigned int _minSpeedAlert = 0;  // En pour-mille/s
-    unsigned int _checkPeriod = 3000;
-
     int _computeLenDelta();
-    bool _looksBlocked();
+    virtual bool _looksBlocked() = 0;
     virtual void _startFolding() = 0;
     virtual void _startUnfolding() = 0;
     virtual void _stop() = 0;

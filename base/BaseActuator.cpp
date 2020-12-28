@@ -6,17 +6,12 @@ BaseActuator::BaseActuator(
   int unfoldedInputVal,
   byte lenInputPin,
   byte isTotallyFoldedInputPin,
-  byte isTotallyUnfoldedInputPin,
-  int minSpeedAlert,
-  unsigned int checkPeriod
+  byte isTotallyUnfoldedInputPin
 ) {
   _lenAccuracy = lenAccuracy;
   _foldedInputVal = foldedInputVal;
   _unfoldedInputVal = unfoldedInputVal;
   _lenInputPin = lenInputPin;
-
-  _minSpeedAlert = minSpeedAlert;
-  _checkPeriod = checkPeriod;
 
   _isTotallyFoldedInputPin = isTotallyFoldedInputPin;
   _isTotallyUnfoldedInputPin = isTotallyUnfoldedInputPin;
@@ -79,40 +74,6 @@ bool BaseActuator::isTotallyUnfolded() {
     return false;
   }
   return digitalRead(_isTotallyUnfoldedInputPin) == HIGH;
-}
-
-bool BaseActuator::_looksBlocked() {
-  int len = readLen();
-  unsigned long now = millis();
-  unsigned long duration = now - _lastCheckTime;
-
-  if (!_moving) {
-    // On met a jour la date de verification, sinon au moment de relancer un
-    // deplacement, la periode de verification sera passee et la vitesse sera
-    // calculee sans moyenne.
-    _lastCheckTime = now;
-    _lastCheckLen = len;
-    return false;
-  }
-  if (_lastCheckLen == -1) {
-    _lastCheckTime = now;
-    _lastCheckLen = len;
-    return false;
-  }
-
-  // On attend que le deplacement ait dure un certain temps avant de calculer
-  // la vitesse, sinon on est trop soumis aux petits aleas de deplacement.
-  if (duration < _checkPeriod) {
-    return false;
-  }
-
-  float movingTime = (float)duration / 1000;
-  int speed = abs(len - _lastCheckLen) / movingTime;
-
-  _lastCheckLen = len;
-  _lastCheckTime = now;
-
-  return speed <= _minSpeedAlert;
 }
 
 actuator_stop_reason_t BaseActuator::stopIfNecessary() {
