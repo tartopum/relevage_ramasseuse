@@ -152,7 +152,17 @@ void BaseActuator::startMovingTo(int target) {
     return;
   }
 
-  int lenDelta = _targetLen - readLen();
+  int len = readLen();
+  int lenDelta = _targetLen - len;
+  bool turningBack = (lenDelta > 0 && isFolding()) || (lenDelta < 0 && isUnfolding());
+
+  if (turningBack) {
+    // On met a jour la date de verification sinon, comme on a fait un demi-tour,
+    // on risque d'avoir parcouru peu de distance en la duree impartie et une
+    // fausse alerte se declenchera.
+    _lastMinSpeedCheckTime = millis();
+    _lastMinSpeedCheckLen = len;
+  }
 
   if (lenDelta > 0 && !isUnfolding()) {
     _startUnfolding();
