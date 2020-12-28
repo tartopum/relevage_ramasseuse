@@ -44,7 +44,10 @@ class BaseActuator {
     byte _isTotallyFoldedInputPin = 0;
     byte _isTotallyUnfoldedInputPin = 0;
 
-    // On utilise des pour mille pour conserver des nombres entiers : 5.5% = 55pm
+    // On utilise des pour mille pour conserver des nombres entiers.
+    // Par exemple, une precision de 5mm sur une course de 1m correspondrait a
+    // une precision de 5.5 si on travaillait en pourcentages. Avec des pour mille,
+    // on a une precision definie a 5.
     int _lenAccuracy;
 
     int _targetLen = -1;

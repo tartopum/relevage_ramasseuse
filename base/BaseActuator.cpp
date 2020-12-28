@@ -140,12 +140,14 @@ actuator_stop_reason_t BaseActuator::stopIfNecessary() {
 
 void BaseActuator::startMovingTo(int target) {
   _targetLen = target;
-  int lenDelta = _targetLen - readLen();
-  bool isAtLen = abs(lenDelta) < _lenAccuracy;
-  bool cannotStep = (lenDelta < 0 && isTotallyFolded()) || (lenDelta > 0 && isTotallyUnfolded());
-  if (isAtLen || cannotStep) {
+
+  // On ne demarre pas si on va s'arreter tout de suite apres.
+  actuator_stop_reason_t stopReason = stopIfNecessary();
+  if (stopReason != NO_STOP) {
     return;
   }
+
+  int lenDelta = _targetLen - readLen();
 
   if (lenDelta > 0 && !isUnfolding()) {
     _startUnfolding();

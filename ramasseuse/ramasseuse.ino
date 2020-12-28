@@ -12,7 +12,7 @@
 #define POTAR_VAL_DEPLIE 0
 #define POTAR_VAL_REPLIE 1023
 #define POTAR_VAL_BRUIT 2
-#define POTAR_DELAI_LECTURE 1000 // ms
+#define POTAR_DELAI_LECTURE 800 // ms
 
 // ************
 // Alerte
