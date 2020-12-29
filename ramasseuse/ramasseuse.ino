@@ -196,7 +196,7 @@ void stopAlert() {
 }
 
 void setup() {
-  Serial.begin(9600);
+  // Serial.begin(9600);
 
   actuatorLeft.stop();
   actuatorRight.stop();
@@ -219,11 +219,13 @@ void loop() {
   // on arrete les deux verins et lance une alerte pour que l'usager puisse
   // regler le probleme.
   if (problemLeft || problemRight) {
+    /*
     Serial.print("[DEBUG] Raison de l'arret a gauche = ");
     Serial.println(stopReasonLeft);
     Serial.print("[DEBUG] Raison de l'arret a droite = ");
     Serial.println(stopReasonRight);
     Serial.println("");
+    */
     actuatorLeft.stop();
     actuatorRight.stop();
     raiseAlert();
