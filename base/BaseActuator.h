@@ -6,10 +6,10 @@
 typedef enum {
   NO_STOP = 0,
   STOP_AT_POS = 1,
-  STOP_FOLDED = 3,
-  STOP_UNFOLDED = 4,
-  STOP_BLOCKED = 5,
-  STOP_TOO_SLOW = 6
+  STOP_FOLDED = 2,
+  STOP_UNFOLDED = 3,
+  STOP_BLOCKED = 4,
+  STOP_TOO_SLOW = 5
 } actuator_stop_reason_t;
 
 class BaseActuator {
