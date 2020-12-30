@@ -29,11 +29,14 @@
 // ************
 // Verin gauche
 // ************
+// On inverse les branchements des capteurs par rapport au verin droit pour ne
+// pas avoir les 8 relais allumes en meme temps ni les potentiometres de position
+// au maximum de leur resistance en meme temps.
 #define VERIN_G_LONGUEUR_UTILISEE 90 // mm
 
-#define VERIN_G_PIN_POS A4
-#define VERIN_G_VAL_DEPLIE 657
-#define VERIN_G_VAL_REPLIE 900
+#define VERIN_G_PIN_POS A3
+#define VERIN_G_VAL_DEPLIE 575
+#define VERIN_G_VAL_REPLIE 150
 
 #define VERIN_G_PIN_COURANT A1
 #define VERIN_G_VAL_MAX_COURANT 460
@@ -43,8 +46,6 @@
 
 #define VERIN_G_RELAIS_ADR_I2C 0x11
 #define VERIN_G_ETAT_RELAIS_STOP 0
-// On inverse par rapport au droit pour ne pas avoir les 8 relais allumes en
-// meme temps.
 #define VERIN_G_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
 #define VERIN_G_ETAT_RELAIS_DEPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 
@@ -53,9 +54,9 @@
 // ************
 #define VERIN_D_LONGUEUR_UTILISEE 90 // mm
 
-#define VERIN_D_PIN_POS A3
-#define VERIN_D_VAL_DEPLIE 530
-#define VERIN_D_VAL_REPLIE 930
+#define VERIN_D_PIN_POS A4
+#define VERIN_D_VAL_DEPLIE 700
+#define VERIN_D_VAL_REPLIE 945
 
 #define VERIN_D_PIN_COURANT A0
 #define VERIN_D_VAL_MAX_COURANT 460
