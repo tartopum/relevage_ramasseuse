@@ -35,10 +35,10 @@
 #define VERIN_G_LONGUEUR_UTILISEE 90 // mm
 
 #define VERIN_G_PIN_POS A3
-#define VERIN_G_VAL_DEPLIE 575
-#define VERIN_G_VAL_REPLIE 150
+#define VERIN_G_VAL_DEPLIE 585
+#define VERIN_G_VAL_REPLIE 155
 
-#define VERIN_G_PIN_COURANT A1
+#define VERIN_G_PIN_COURANT 0
 #define VERIN_G_VAL_MAX_COURANT 460
 
 #define VERIN_G_PIN_FIN_COURSE_REPLIE 0
@@ -54,11 +54,11 @@
 // ************
 #define VERIN_D_LONGUEUR_UTILISEE 90 // mm
 
-#define VERIN_D_PIN_POS A4
-#define VERIN_D_VAL_DEPLIE 700
-#define VERIN_D_VAL_REPLIE 945
+#define VERIN_D_PIN_POS A1
+#define VERIN_D_VAL_DEPLIE 520
+#define VERIN_D_VAL_REPLIE 940
 
-#define VERIN_D_PIN_COURANT A0
+#define VERIN_D_PIN_COURANT 0
 #define VERIN_D_VAL_MAX_COURANT 460
 
 #define VERIN_D_PIN_FIN_COURSE_REPLIE 0
@@ -122,6 +122,11 @@ class Actuator : public I2CRelayActuator {
     unsigned long _lastTimeBelow;
 
     bool _looksBlocked() {
+      // On n'utilise plus les capteurs de courant car il n'y a pas assez de
+      // pins analogiques sur l'Arduino (A4 et A5 servent a l'I2C).
+      return false;
+
+      /*
       if (!_moving || _targetLen == 0) {
         _lastTimeBelow = millis();
         return false;
@@ -131,16 +136,15 @@ class Actuator : public I2CRelayActuator {
       if (current < _maxCurrentVal) {
         _lastTimeBelow = millis();
       } else if (millis() - _lastTimeBelow > _maxTimeAbove) {
-        /*
         Serial.print("[DEBUG] Courant trop important ! ");
         Serial.print(current);
         Serial.print(" >= ");
         Serial.println(_maxCurrentVal);
         Serial.println("");
-        */
         return true;
       }
       return false;
+      */
     };
 };
 

@@ -3,15 +3,15 @@
 #define POTAR_PIN A2
 
 #define VERIN_G_PIN_POS A3
-#define VERIN_G_PIN_COURANT A1
+#define VERIN_G_PIN_COURANT 0
 #define VERIN_G_RELAIS_ADR_I2C 0x11
 #define VERIN_G_ETAT_RELAIS_STOP 0
 #define VERIN_G_ETAT_RELAIS_REPLIER CHANNLE3_BIT | CHANNLE4_BIT
 #define VERIN_G_ETAT_RELAIS_DEPLIER CHANNLE1_BIT | CHANNLE2_BIT | CHANNLE3_BIT | CHANNLE4_BIT
 #define VERIN_G_COURANT_MAX_VAL 460
 
-#define VERIN_D_PIN_POS A4
-#define VERIN_D_PIN_COURANT A0
+#define VERIN_D_PIN_POS A1
+#define VERIN_D_PIN_COURANT 0
 #define VERIN_D_RELAIS_ADR_I2C 0x21
 #define VERIN_D_ETAT_RELAIS_STOP 0
 #define VERIN_D_ETAT_RELAIS_DEPLIER CHANNLE3_BIT | CHANNLE4_BIT
@@ -27,7 +27,7 @@
 // Assigner une des valeurs precedentes et recharger le programme sur l'Arduino.
 // Puis consulter le moniteur Serie.
 // *****************
-byte mode = CALIBRATION_VERIN_D;
+byte mode = CALIBRATION_VERIN_G;
 
 Multi_Channel_Relay actuator_left_relay;
 Multi_Channel_Relay actuator_right_relay;
@@ -71,6 +71,9 @@ void calibrateActuator(
     printCurrent = true;
     lastPrintCurrentMillis = millis();
   }
+  if (currentPin == 0) {
+    printCurrent = false;
+  }
 
   if (printPos) {
     Serial.println();
@@ -84,7 +87,7 @@ void calibrateActuator(
   int targetPos = analogRead(targetPosPin);
   int current =  analogRead(currentPin);
 
-  if (current >= currentStopVal) {
+  if (currentPin != 0 && current >= currentStopVal) {
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!");
     Serial.println("COURANT IMPORTANT, STOP.");
     Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!");
